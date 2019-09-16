@@ -1,0 +1,244 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <title>TeamLock</title>
+
+	    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+	    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+	    <link rel="stylesheet" href="{% static 'plugins/font-awesome/css/font-awesome.min.css' %}">
+	    <link rel="stylesheet" href="{% static 'plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css' %}">
+	    <link rel="stylesheet" href="{% static 'plugins/pnotify/pnotify.min.css' %}">
+	    <link rel="stylesheet" href="{% static 'plugins/select2/select2.css' %}">
+	    <link rel="stylesheet" href="{% static 'plugins/datepicker/datepicker3.css' %}">
+	    <link rel="stylesheet" href="{% static 'plugins/switchery/switchery.min.css' %}">
+	    <link rel="stylesheet" href="{% static 'stylesheets/AdminLTE.min.css' %}">
+	    <link rel="stylesheet" href="{% static 'plugins/iCheck/all.css' %}">
+	    <link rel="stylesheet" href="{% static 'stylesheets/style2.css' %}">
+	    <link rel="stylesheet" href="{% static 'stylesheets/style.css' %}">
+
+	    {% block css_include %}{% endblock %}
+	</head>
+
+	<body>
+		<input type="hidden" id="id_user" value="{{ request.user.id }}"/>
+		<div class="tl-content-body">
+			<div class="tl-blur">
+				<div class="tl-main">
+
+					{% block tree %} {% endblock %}
+
+					<div class="tl-top">
+						<div class="tl-top-head">
+							<ul class="main-menu">
+								<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Workspaces" id="link_workspaces"><a href="/"><i class="fa fa-dashboard"></i></a></li>
+								{% if request.user.is_superuser %}
+									<!--<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Teams" id="link_teams"><a href="/teams"><i class="fa fa-users"></i></a></li>-->
+									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Users" id="link_users"><a href="/users"><i class="fa fa-user"></i></a></li>
+									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Settings" id="link_settings"><a href="/settings"><i class="fa fa-cogs"></i></a></li>
+								{% endif %}
+							</ul>
+
+							<a class="dropdown-toggle tl-top-icon" href="#" id="menu1" data-toggle="dropdown">{{ request.user.email }}&nbsp;&nbsp;&nbsp;<span class="caret"></span></a>
+							<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="menu1">
+						      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'profile' %}"><i class="fa fa-user">&nbsp;&nbsp;</i>{% trans "Profile" %}</a></li>
+						      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'log_out' %}"><i class="fa fa-sign-out">&nbsp;&nbsp;</i>{% trans "Logout" %}</a></li>
+						    </ul>
+						</div>
+					</div>
+
+					<div class="tl-content">
+						{% block content %} {% endblock %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="modal fade" tabindex="-1" id="passphrase-modal" role="dialog">
+		    <form action="#" id="form_passphrase">
+		      <div class="modal-dialog" role="document">
+		        <div class="modal-content">
+		          <div class="modal-header">
+		            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		            <h4 class="modal-title"><i class="fa fa-key"></i>&nbsp;&nbsp;{% trans "Passphrase" %}</h4>
+		          </div>
+		          <div class="modal-body">
+		            <div class="row">
+		              <div class="col-sm-12">
+		                <div class="alert alert-danger alert-dismissible" id="error-passphrase">
+		                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		                  <span id="passphrase-modal-error"></span>
+		                </div>
+		              </div>
+		            </div>
+		            <div class="row">
+		              <div class="col-md-12 form-group">
+		                <label for="passphrase">Passphrase</label>
+		                <input type="password" id="passphrase" class="form-control"/>
+		              </div>
+		            </div>
+		          </div>
+
+		          <div class="modal-footer">
+		            <button type="submit" id="submit-passphrase" class="btn btn-flat btn-success">{% trans "Submit" %}</button>
+		            <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
+		          </div>
+		        </div>
+		      </div>
+		    </form>
+		</div>
+
+	    <script src="{% url 'javascript-catalog' %}"></script>
+		<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
+	    <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+	    <script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
+	    <script src="{% static 'plugins/input-mask/jquery.inputmask.js' %}"></script>
+	    <script src="{% static 'plugins/input-mask/jquery.inputmask.date.extensions.js' %}"></script>
+	    <script src="{% static 'plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js' %}"></script>
+	    <script src="{% static 'plugins/input-mask/jquery.inputmask.extensions.js' %}"></script>
+	    <script src="{% static 'plugins/switchery/switchery.min.js' %}"></script>
+	    <script src="{% static 'plugins/datepicker/bootstrap-datepicker.js' %}"></script>
+	    <script src="{% static 'plugins/pnotify/pnotify.min.js' %}"></script>
+	    <script src="{% static 'plugins/slimScroll/jquery.slimscroll.min.js' %}"></script>
+	    <script src="{% static 'plugins/fastclick/fastclick.js' %}"></script>
+	    <script src="{% static 'plugins/iCheck/icheck.min.js' %}"></script>
+	    <script src="{% static 'plugins/fileSaver.min.js' %}"></script>
+	    <script src="{% static 'javascripts/sha512.js' %}"></script>
+	    <script src="{% static 'javascripts/app.js' %}"></script>
+	    <script src="{% static 'plugins/blob.js' %}"></script>
+	    <script src="{% static 'plugins/fileSaver.min.js' %}"></script>
+	    <script src="{% static 'plugins/vue/vue.js' %}"></script>
+	    <script src="{% static 'javascripts/common.js' %}"></script>
+
+	    <script>
+	    	var generate_recovery_key_url = "{% url 'generate_recovery_key' %}";
+	      	String.prototype.format = function() {
+			  var args = arguments;
+			  return this.replace(/{(\d+)}/g, function(match, number) { 
+			    return typeof args[number] != 'undefined'
+			      ? args[number]
+			      : match
+			    ;
+			  });
+			};
+
+			function getCookie(name) {
+			  var cookieValue = null;
+			  if (document.cookie && document.cookie !== '') {
+			      var cookies = document.cookie.split(';');
+			      for (var i = 0; i < cookies.length; i++) {
+			          var cookie = jQuery.trim(cookies[i]);
+			          // Does this cookie string begin with the name we want?
+			          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+			              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			              break;
+			          }
+			      }
+			  }
+			  return cookieValue;
+			}
+
+	        PNotify.prototype.options.styling = "bootstrap3";
+	        PNotify.prototype.options.styling = "fontawesome";
+
+	        function init_control(){
+	        	
+				var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+
+				elems.forEach(function(html) {
+				  var switchery = new Switchery(html);
+				});
+
+				$('.select2').select2();
+	        	
+				$('.date_picker').datepicker({
+					autoclose: true,
+					format: "yyyy-mm-dd"
+				});
+
+				$("[data-mask]").inputmask();
+				$(".textarea").wysihtml5();
+
+
+				$('#id_type_key').on('change', type_key);
+				$('#id_type_key').trigger('change');
+
+	          function type_key(){
+	            $('.machine').hide();
+	            $('.software').hide();
+	            $('.website').hide();
+
+	            var type_key = $('#id_type_key').val();
+
+	            switch(type_key){
+	              case "Software":
+	                $('.software').show();
+	                break;
+
+	              case "Hardware": 
+	                $('.machine').show();
+	                break;
+
+	              case "Website":
+	                $('.website').show();
+	                break;
+
+	              case "Other":
+	                break;
+	            }
+
+	          }
+	        }
+
+	        function notify(type, title, message, no_remove){
+		        if (!no_remove)
+		          PNotify.removeAll();
+
+		        var config = {
+		          title: title,
+		          type: type,
+		          buttons: {
+		            close: true,
+		            sticker: false
+		          },
+		          nonblock:{
+		            nonblock: false
+		          }
+		        }
+
+		        if (type === "error")
+		          config.hide = false;
+		        if (message)
+		          config.text = message;
+
+		        if (type !== "error"){
+		          new PNotify(config).get().click(function() {
+		              this.remove();
+		          });
+		        } else {
+		          new PNotify(config);
+		        }
+		     }
+
+			$(function(){
+		        $('.select2').select2();
+
+				var page = "{{ path }}";
+				if (page === "/")
+					page = "workspaces"
+				else 
+					page = page.split('/')[1];
+
+		        $("#link_"+page).addClass('active');
+
+		        {% block jquery_code %}{% endblock %}
+		      })
+	    </script>
+
+	    {% block js_include %}{% endblock %}
+	</body>
+</html>

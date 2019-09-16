@@ -1,0 +1,373 @@
+{% extends 'layout.html' %}
+{% load i18n %}
+
+{% block nav %}
+
+{% endblock %}
+
+{% block nav_right %}
+  
+{% endblock %}
+
+{% block tree %}
+
+  <div class="tl-tree">
+      <div class="tl-tree-header">
+        <div class="tl-tree-header">
+        <div class="tree-search">
+          <i class="fa fa-cloud">&nbsp;&nbsp;</i>Teamlock
+        </div>
+      </div>
+      </div>
+      <div class="tl-tree-content">
+          
+        <div class="info-box">
+          <div class="info-box-icon">
+              <i class="fa fa-users"></i>
+          </div>
+          <div class="info-box-content">
+            <span class="info-box-text">{% trans "Total" %}</span> 
+            <span class="info-box-number">{{ users|length }}</span>
+
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-icon">
+              <i class="fa fa-cogs"></i>
+          </div>
+          <div class="info-box-content">
+            <span class="info-box-text">{% trans "Not configured" %}</span> 
+            <span class="info-box-number">{{ not_configured_users }}</span>
+
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-box-icon">
+              <i class="fa fa-ban"></i>
+          </div>
+          <div class="info-box-content">
+            <span class="info-box-text">{% trans "Locked" %}</span> 
+            <span class="info-box-number">{{ locked_users }}</span>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+  
+  <div class="tl-content-header">
+    <div class="tl-content-header-search">
+      <form action="#" id="form-search">
+        <input type="text" id="search-input" class="form-control" placeholder="Search..."/>
+      </form>
+    </div>
+    <div class="tl-content-header-button">
+        <a class="tl-header-button btn-add"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Add an entry" %}</a>
+    </div>
+  </div>
+
+  <div class="tl-content-table">
+  
+    <table id="users" class="table tl-table" width="100%">
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>{% trans "First name" %}</th>
+          <th>{% trans "Last name" %}</th>
+          <th>{% trans "Email" %}</th>
+          <th>{% trans "Company" %}</th>
+          <th>{% trans "Configured" %}</th>
+          <th>{% trans "Staff" %}</th>
+          <th>{% trans "Locked" %}</th>
+          <th>{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.pk }}</td>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.company }}</td>
+            <td>{{ user.configure }}</td>
+            <td>{{ user.is_superuser }}</td>
+            <td>{{ user.locked }}</td>
+            <td></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal fade" id="edit-modal-user" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridSystemModalLabel">{% trans "Add/Edit user" %}</h4>
+        </div>
+        <div class="modal-body" id="user-modal-content">
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+          <button type="button" class="btn btn-primary" id="form-submit">{% trans "Save changes" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block css_include %}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.css"/>
+{% endblock %}
+
+{% block js_include %}
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.js"></script>
+  <script src="/static/plugins/datatables/dataTables.bootstrap.js"></script>
+{% endblock %}
+
+{% block jquery_code %}
+
+  $('.btn-add').on('click', function(){
+    $.post(
+      '/users/edit/',
+      {'csrfmiddlewaretoken': getCookie('csrftoken')},
+
+      function(response){
+        if (typeof(response) === "string"){
+          $('#edit-modal-user').modal('show');
+          $('#user-modal-content').html(response);
+          init_control();
+        } else {
+          notify('error', 'Error', response['error']);
+        }
+      }
+    )
+  })
+
+  $('#form-submit').on('click', function(){
+    var btn = this;
+    var txt = $(btn).html()
+    $(btn).html('<i class="fa fa-spinner fa-spin"></i>');
+    $(btn).prop('disabled', 'disabled');
+
+    var data = $('#form_user').serialize();
+
+    $('#load_ajax').html('<i class="fa fa-spinner fa-spin"></i>');
+    $.post(
+      $('#form_user').attr('action'),
+      data,
+
+      function(response){
+        $('#load_ajax').html("");
+        $(btn).html(txt);
+        $(btn).prop('disabled', '');
+
+        if (!response.status){
+          if (typeof(response.error) === "string"){
+            notify('error', 'Error', response.error);
+            $('#edit-modal-user').modal('hide');
+            
+          } else {
+            $.each(response['error'], function(key, value){
+              $('#id_error_'+key).html(value[0]);
+            })
+          }
+
+        } else {
+          $('#edit-modal-user').modal('hide');
+          notify('success', 'Success', '{% trans "User has been saved" %}');
+          var users_table = $('#users').dataTable();
+          if (response.user_id){
+            var nodes = users_table.fnGetNodes();
+            for (var i in nodes){
+              var d = users_table.fnGetData(nodes[i]);
+              if (d.id === response.user_id){
+                var pos = users_table.fnGetPosition(nodes[i]);
+                users_table.fnDeleteRow(pos);
+                break;
+              }
+            }
+          }
+
+          users_table.fnAddData(response.user);
+        }
+      }
+    )
+  })
+
+  function check_times(data){
+    if ($.inArray(data, ["True", "true"]) > -1)
+      return "<i class='fa fa-check'></i>"
+
+    return "<i class='fa fa-times'></i>"
+  }
+
+  var table = $('#users').DataTable({
+    aaSorting    : [[1, "desc"]],
+    sDom: '<"top"<"clear">>rt<"bottom"<"clear">>',
+    oLanguage: {
+      sLengthMenu: '_MENU_',
+      oPaginate  : {
+        sNext    : '',
+        sPrevious: ''
+      }
+    },
+    aoColumns    : [
+      {mData: "id", name: "id", defaultContent: "", bVisible: false, aTargets: [0], sClass: "center", bSortable: false},
+      {mData: "first_name", name: "first_name", defaultContent: "", bVisible: true, aTargets: [1], sClass: "center", bSortable: true},
+      {mData: "last_name", name: "last_name", defaultContent: "", bVisible: true, aTargets: [2], sClass: "center", bSortable: true},
+      {mData: "email", name: "email", defaultContent: "", bVisible: true, aTargets: [3], sClass: "center", bSortable: true},
+      {mData: "company", name: "company", defaultContent: "", bVisible: true, aTargets: [4], sClass: "center", bSortable: true},
+      {mData: "configure", name: "configure", defaultContent: "", bVisible: true, aTargets: [5], sClass: "center", bSortable: true, mRender: function(data, type, row){
+        try{
+          return check_times(data);
+
+        } catch (err){
+          return data;
+        }
+      }},
+      {mData: "is_superuser", name: "is_superuser", defaultContent: "", bVisible: true, aTargets: [6], sClass: "center", bSortable: true, mRender: function(data, type, row){
+        try{
+          return check_times(data);
+
+        } catch (err){
+          return data;
+        }
+      }},
+      {mData: "is_locked", name: "is_locked", defaultContent: "", bVisible: true, aTargets: [7], sClass: "center", bSortable: true, mRender: function(data, type, row){
+        try{
+          return check_times(data);
+
+        } catch (err){
+          return data;
+        }
+      }},
+      {mData: "action", name: "action", defaultContent: "", bVisible: true, aTargets: [8], sClass: "center", bSortable: false, sWidth: '10%', mRender: function(data, type, row){
+        var action_lock = "lock";
+        if (row.is_locked === "true")
+          action_lock = "unlock";
+
+        return "<button href='#' class='btn btn-xs btn-flat btn-warning lock-link' data-action='{0}'><i class='fa fa-{0}'></i></button>&nbsp;&nbsp;<button href='#' class='btn btn-xs btn-flat btn-danger delete-link'><i class='fa fa-trash'></i></button>".format(action_lock);
+      }},
+    ],
+
+    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+      var td_action = $(nRow).find('td').last();
+      $(td_action).find('button.delete-link').on('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        $.post(
+          '/users/delete/',
+          {
+            'csrfmiddlewaretoken': getCookie('csrftoken'),
+            'user_id': aData['id']
+          },
+
+          function(response){
+            if (typeof(response) === 'string')
+              window.location.href = response;
+
+            if (!response['status']){
+              notify('error', 'Error', response['error']);
+            } else if (response['status']){
+              notify('success', 'success', response['success']);
+
+              var users_table = $('#users').dataTable();
+              var nodes       = users_table.fnGetNodes();
+              for (var i in nodes){
+                var d = users_table.fnGetData(nodes[i]);
+                if (d.id === aData['id']){
+                  var pos = users_table.fnGetPosition(nodes[i]);
+                  users_table.fnDeleteRow(pos);
+                  break;
+                }
+              }
+            }
+          }
+        )
+      })
+
+      $(td_action).find('button.lock-link').on('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        new PNotify({
+            title: gettext('Confirmation'),
+            text: gettext('Lock user ?'),
+            icon: 'fa fa-trash',
+            hide: false,
+            confirm: {
+                confirm: true
+            },
+            buttons: {
+                closer: false,
+                sticker: false
+            },
+            history: {
+                history: false
+            }
+        }).get().on('pnotify.confirm', function() {
+          $.post(
+            '{% url "user_lock" %}',
+            {
+              'csrfmiddlewaretoken': getCookie('csrftoken'),
+              'user_id': aData['id']
+            },
+
+            function(response){
+              if (typeof(response) === 'string')
+                window.location.href = response;
+
+              if (!response['status'])
+                notify('error', 'Error', response['error']);
+              else if (response['status'])
+                notify('success', 'success', response['success']);
+
+              $("#users").dataTable().fnDraw();
+            }
+          )
+        });
+      })
+
+      $(nRow).on('click', function(){
+        $.post(
+          '/users/edit/',
+          {
+            'csrfmiddlewaretoken': getCookie('csrftoken'),
+            'user_id': aData['id']
+          },
+
+          function(response){
+            if (typeof(response) === "string"){
+              $('#edit-modal-user').modal('show');
+              $('#user-modal-content').html(response);
+              init_control();
+            } else {
+              notify('error', 'Error', response['error']);
+            }
+          }
+        )
+      })
+
+    }
+  });
+
+  $('#form-search').on('submit', function(){
+    var table = $('#users').dataTable();
+    table.fnFilter($('#navbar-search-input').val());
+  })
+
+{% endblock %}

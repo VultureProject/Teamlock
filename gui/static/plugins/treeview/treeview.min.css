@@ -1,0 +1,61 @@
+.treeview .list-group-item {
+    cursor: pointer;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 0px;
+}
+
+.treeview span.indent {
+    margin-left: 5px;
+    margin-right: 5px
+}
+
+.treeview span.icon {
+    width: 12px;
+    margin-right: 5px
+}
+
+.treeview .node-disabled {
+    color: silver;
+    cursor: not-allowed
+}
+
+
+/*.treeview {
+  padding-left: 0;
+}
+.treeview, .treeview ul {
+  list-style: none;
+}
+.treeview li {
+  position: relative;
+}
+.treeview li a {
+  display: block;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  color: #333;
+  text-decoration: none;
+  outline: 0 none;
+}
+.treeview ul:before {
+  position: absolute;
+  border-left: 1px dotted #333;
+  content: "";
+  width: 30px;
+  top: 25px;
+  left: 5px;
+  bottom: 17px;
+}
+.treeview ul > li:before {
+  position: absolute;
+  border-top: 1px dotted #333;
+  content: "";
+  width: 30px;
+  top: 13px;
+  left: -33px;
+}
+li.active > a > span.fa-folder-o:before {
+  content: "\f115" !important;
+}
+*/

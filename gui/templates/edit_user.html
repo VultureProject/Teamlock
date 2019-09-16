@@ -1,0 +1,33 @@
+
+<form method="POST" action="/users/save/{{user_id}}" id="form_user">
+	{% csrf_token %}
+
+	<div class="row">
+		<div class="col-sm-3">
+			<label for="id_first_name">{{ form.first_name.label }}</label>
+			{{ form.first_name }}
+			<p class="error_form" id="id_error_first_name"></p>
+		</div>
+		<div class="col-sm-3">
+			<label for="id_last_name">{{ form.last_name.label }}</label>
+			{{ form.last_name }}
+			<p class="error_form" id="id_error_last_name"></p>
+		</div>
+
+		<div class="col-sm-3">
+			<label for="id_email">{{ form.email.label }}</label>
+			{{ form.email }}
+			<p class="error_form" id="id_error_email"></p>
+		</div>
+		<div class="col-md-3" id="company">
+			<label for="id_company">{{ form.company.label }}</label>
+			{{ form.company }}
+			<p class="error_form" id="id_error_company"></p>
+		</div>
+		<div class="col-sm-2">
+			<div class="checkbox">
+				<label id="id_is_superuser">{{ form.is_superuser }}&nbsp;&nbsp;{{ form.is_superuser.label }}</label>
+			</div>
+		</div>
+	</div>
+</form>

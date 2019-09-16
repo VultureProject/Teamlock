@@ -1,0 +1,259 @@
+{% extends 'layout.html' %}
+{% load i18n static %}
+
+{% block nav %}
+
+{% endblock %}
+
+{% block nav_right %}
+  
+{% endblock %}
+
+{% block tree %}
+
+  <div class="tl-tree">
+      <div class="tl-tree-header">
+        <div class="tl-tree-header">
+        <div class="tree-search">
+          <i class="fa fa-cloud">&nbsp;&nbsp;</i>Teamlock
+        </div>
+      </div>
+      </div>
+      <div class="tl-tree-content">
+        <div class="tree-search">
+          <div class="info-box">
+            <div class="info-box-icon">
+                <i class="fa fa-key"></i>
+            </div>
+            <div class="info-box-content">
+              <span class="info-box-text">{% trans "Last password change" %}</span> 
+              <span class="info-box-number">{{ request.user.last_change_passwd }}</span>
+            </div>
+          </div>
+
+          <a href="#" id="generate_recovery_key" class="link_download_recovery">
+            <div class="info-box">
+              <div class="info-box-icon">
+                  <i class="fa fa-download"></i>
+              </div>
+              <div class="info-box-content">
+                <span class="info-box-text">{% trans "Download recovery key" %}</span> 
+                <span class="info-box-number">
+                  {% trans "Download" %}
+                </span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block content %} 
+  
+  <br/>
+  <div class="col-md-6">  
+    <form method="POST" action="/users/save/{{request.user.id}}" id="form_user">
+      {% csrf_token %}
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">{% trans "Your informations" %}</h3>
+        </div>
+        <div class="box-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <label for="id_first_name">{{ form_user.first_name.label }}</label>
+              {{ form_user.first_name }}
+              <p class="error_form" id="id_error_first_name"></p>
+            </div>
+            <div class="col-sm-6">
+              <label for="id_last_name">{{ form_user.last_name.label }}</label>
+              {{ form_user.last_name }}
+              <p class="error_form" id="id_error_last_name"></p>
+            </div>
+
+            <div class="col-sm-6">
+              <label for="id_email">{{ form_user.email.label }}</label>
+              {{ form_user.email }}
+              <p class="error_form" id="id_error_email"></p>
+            </div>
+            <div class="col-sm-6">
+              <label for="id_phone">{{ form_user.phone.label }}</label>
+              {{ form_user.phone }}
+              <p class="error_form" id="id_error_label"></p>
+            </div>
+            <div class="col-md-6" id="company">
+              <label for="id_company">{{ form_user.company.label }}</label>
+              {{ form_user.company }}
+              <p class="error_form" id="id_error_company"></p>
+            </div>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="submit" class="btn btn-flat btn-success pull-right">{% trans "Save" %}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="col-sm-6">
+    <form method="POST" action="{% url 'update_password' %}">
+      {% csrf_token %}
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">{% trans "Password management" %}</h3>
+        </div>
+        <div class="box-body">
+          <div class="row">
+            <div class="col-md-12">
+              <label for="id_old_password">{% trans "Old Password" %}</label>
+              <input type="password" name="old_password" id="id_old_password" class="form-control" required="required"/>
+            </div>
+            <div class="col-md-12">
+              <label for="id_new_password">{% trans "New Password" %}</label>
+              <input type="password" name="new_password" id="id_new_password" class="form-control" required="required"/>
+            </div>
+            <div class="col-md-12">
+              <label for="id_confirm_password">{% trans "Repeat Password" %}</label>
+              <input type="password" name="confirm_password" id="id_confirm_password" class="form-control" required="required"/>
+            </div>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="submit" class="btn btn-flat btn-success pull-right">{% trans "Save" %}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!--<div class="col-sm-6">
+    <form method="POST" action="/profile/mobile/save/" id="form_mobile">
+      {% csrf_token %}
+      <div class="box box-warning">
+        <div class="box-header with-border">
+          <h3 class="box-title"><i class="fa fa-tablet">&nbsp;&nbsp;</i>{% trans "Mobiles" %}</h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+              <div class="col-md-12">
+                <table class="table no-margin">
+                  <thead>
+                  <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Activated" %}</th>
+                    <th>{% trans "Join" %}</th>
+                    <th>{% trans "Key" %}</th>
+                    <th>{% trans "Action" %}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    {% for mobile in mobiles %}
+                      <tr>
+                        <td>{{ mobile.name }}</td>
+                        <td>{{ mobile.type_mobile|safe }}</td>
+                        <td>{{ mobile.activated|safe }}</td>
+                        <td>{{ mobile.join }}</td>
+                        <td>{{ mobile.key }}</td>
+                        <td>{{ mobile.action|safe }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="id_name">{{ form_mobile.name.label }}</label>
+                {{ form_mobile.name }}
+                <p class="error_form" id="id_error_name"></p>
+              </div>
+              <div class="col-sm-6">
+                <label for="id_type_mobile">{{ form_mobile.type_mobile.label }}</label>
+                {{ form_mobile.type_mobile }}
+                <p class="error_form" id="id_error_type_mobile"></p>
+              </div>
+            </div>
+        </div>
+
+        <div class="box-footer">
+          <button type="submit" class="btn btn-flat btn-success pull-right">{% trans "Save" %}</button>
+        </div>
+      </div>
+    </form>
+  </div>-->
+
+{% endblock %}
+
+{% block css_include %}
+{% endblock %}
+
+{% block js_include %}
+  <script src="{% static 'javascripts/profile.js' %}"></script>
+{% endblock %}
+
+{% block jquery_code %}
+
+  {% if error %}
+    notify('error', gettext('Error'), '{{ error }}');
+  {% endif %}
+
+  {% if success %}
+    notify('success', gettext('Success'), '{{ success }}');
+  {% endif %}
+
+  $('#form_user').on('submit', function(e){
+    $('.error_form').html('')
+    e.preventDefault();
+
+    $.post(
+      $(this).attr('action'),
+      $(this).serialize(),
+
+      function(response){
+        if (response.status){
+          notify('success', 'Success', '{% trans "Informations updated !" %}')
+        } else {
+          if (typeof(response['error']) === "string"){
+            notify('error', 'Error', response['error']);
+            $('#edit-modal-user').modal('hide');
+            
+          } else {
+            $.each(response['error'], function(key, value){
+              $('#id_error_'+key).html(value[0]);
+            })
+          }
+        }
+      }
+    )
+  })
+  
+  $('.action').on('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+
+    var id = $(this).data('id')
+    console.log(id)
+
+    if ($(this).data('action') === 'delete'){
+      var btn = this;
+      $.post(
+        '/profile/mobile/del/',
+        {
+          'id': id,
+          'csrfmiddlewaretoken': getCookie('csrftoken')
+        },
+
+        function(response){
+          if (response['status']){
+            notify('success', 'Success', '{% trans "Mobile deleted" %}');
+            $(btn).parents('tr').remove();
+          } else {
+            notify('error', 'Error', response['error']);
+          }
+        }
+      )
+    }
+  })
+
+{% endblock %}

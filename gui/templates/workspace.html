@@ -1,0 +1,465 @@
+{% extends 'layout.html' %}
+{% load i18n static %}
+
+{% block nav %}
+
+{% endblock %}
+
+{% block nav_right %}
+  
+{% endblock %}
+
+{% block tree %}
+  
+    <div class="tl-tree">
+      <div id="dragbar"></div>
+      <div class="tl-tree-header">
+        <i class="fa fa-cloud">&nbsp;&nbsp;</i>Teamlock
+      </div>
+      <div class="tl-tree-content">
+        <div class="tree-search">
+          <label for="workspaces-select">{% trans "Workspaces:"%}</label>
+          <select id="workspaces-select"></select>
+        </div>
+
+        <div id="div-action-workspace">
+          <div class="btn-group" id="btn-action-workspace">
+            <button type="button" data-toggle="modal" data-target="#modal-add-workspace" class="btn btn-default btn-flat"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create a workspace" %}</button>
+            <button type="button" id="dropdown-tool" class="btn btn-default btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a href="#" data-toggle="modal" data-target="#modal-import-keepass"><i class="fa fa-upload">&nbsp;&nbsp;</i>{% trans "Import KeePass File" %}</a></li>
+              <li><a href="#" data-toggle="modal" data-target="#modal-share-workspace"><i class="fa fa-share-alt">&nbsp;&nbsp;</i>{% trans "Share workspace" %}</a></li>
+              <li><a href="#" data-toggle="tooltip" data-placement="bottom" id="btn-delete-workspace" title="Delete workspace" v-on:click="delete_workspace"><i class="fa fa-trash">&nbsp;&nbsp;</i>{% trans "Delete workspace" %}</a></li>
+              <li><a href="#" v-on:click="add_folder_root"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create a root folder" %}</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <input type="text" v-model="search_tree" id="search-tree" class="form-control" placeholder="Search folder"/>
+
+        <div id="tree"></div>
+      </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+  <div class="tl-content-header-workspace">
+    <div class="tl-content-header-search">
+      <input type="text" v-model="search_workspace" class="form-control" placeholder="Search"/>
+    </div>
+    <div class="tl-content-header-button">
+    </div>
+  </div>
+
+  <div class="tl-content-workspace">
+    
+    <div class="box" id="box-keys">
+      <div class="box-header">
+        <div class="box-title"><i class="fa fa-key"></i>&nbsp;&nbsp;{% trans "Keys" %}</div>
+
+        <div class="box-tools pull-right">
+          <a class="tl-header-button" id="btn-add-key"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Add an entry" %}</a>
+        </div>
+      </div>
+
+      <div class="box-content">
+
+        <table id="keys" class="table tl-table" width="100%">
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Login" %}</th>
+              <th>{% trans "Password" %}</th>
+              <th>{% trans "URI" %}</th>
+              <th>{% trans "IPv4" %}</th>
+              <th>{% trans "IPv6" %}</th>
+              <th>{% trans "OS" %}</th>
+              <th>{% trans "Informations" %}</th>
+              <th>{% trans "Actions" %}</th>
+              <th>{% trans "Folder" %}</th>
+            </tr>
+          </thead>
+
+          <tbody>
+           
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- <div class="box" id="box-files">
+      <div class="box-header">
+        <div class="box-title"><i class="fa fa-file"></i>&nbsp;&nbsp;Files</div>
+
+        <div class="box-tools pull-right">
+        </div>
+      </div>
+
+      <div class="box-content">
+        <table id="files" class="table tl-table" width="100%">
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+           
+          </tbody>
+        </table>
+        <div id="dropzonePreview" class="dropzone">
+          <div class="dz-default dz-message" id="dropzone_message">
+            <div class="dz-icon icon-wrap icon-circle icon-wrap-md">
+              <i class="fa fa-cloud-upload fa-3x"></i>
+            </div>
+            <div>
+              <p class="dz-text">Drop files to upload</p>
+              <p class="text-muted">or click to pick manually</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+
+  <div class="modal fade" tabindex="-1" id="modal-add-key" role="dialog">
+    <div class="modal-dialog" role="document" style="width:60%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{% trans "Add a key" %}</h4>
+        </div>
+        <form action="#" id="form-save-key">
+          <div class="modal-body" id="edit-key">
+
+            <input type="hidden" v-model="key.folder"/>
+            <input type="hidden" v-model="key.id"/>
+            <div class="row">
+              <div class="col-md-4">
+                <label for="id_name">{% trans "Name" %}</label>
+                <input type="text" class="form-control" id="id_name" v-model="key.name"/>
+                <p class="error_form" id="id_error_name"></p>
+              </div>
+
+              <div class="col-md-4">
+                <label for="id_uri">{% trans "URI" %}</label>
+                <input type="text" class="form-control" id="id_uri" v-model="key.uri"/>
+                <p class="error_form" id="id_error_uri"></p>
+              </div>
+              <div class="col-md-4">
+                <label for="os">{% trans "OS" %}</label>
+                <select class="form-control select2" id="os">
+                  <option value="">---</option>
+                  <option value="BSD">{% trans "BSD" %}</option>
+                  <option value="Linux">{% trans "Linux" %}</option>
+                  <option value="Windows">{% trans "Windows" %}</option>
+                  <option value="MacOSx">{% trans "MacOSx" %}</option>
+                  <option value="Other">{% trans "Other" %}</option>
+                </select>
+                <p class="error_form" id="id_error_os"></p>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <label for="id_ipv4">{% trans "IPv4" %}</label>
+                <input type="text" class="form-control" id="id_ipv4" v-model="key.ipv4"/>
+                <p class="error_form" id="id_error_ipv4"></p>
+              </div>  
+              <div class="col-md-6">
+                <label for="id_ipv6">{% trans "IPv6" %}</label>
+                <input type="text" class="form-control" id="id_ipv6" v-model="key.ipv6"/>
+                <p class="error_form" id="id_error_ipv6"></p>
+              </div>  
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <label for="id_login">{% trans "Login" %}</label>
+                <input type="text" class="form-control" id="id_login" v-model="key.login"/>
+                <p class="error_form" id="id_error_login"></p>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="id_password">{% trans "Password" %}</label>
+
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="id_password" v-model="key.password"/>
+                    <!-- /btn-group -->
+                    <div class="input-group-btn">
+                      <button type="button" v-on:click="showpass" class="btn btn-default btn-flat btn-action-keyring"><i class="fa fa-eye"></i></button>
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-magic"></i></button>
+                      <ul class="dropdown-menu" id="dropdown-generator-password" role="menu">
+                        <li><h4>{% trans "Password generator" %}</h4></li>
+                        <li class="gen_pass">
+                          <div class="form-group">
+                            <label>{% trans "Length" %}</label>
+                            <input type="number" class="form-control" v-model="length_pass" placeholder="Lenght"/>
+                          </div>
+                        </li>
+                        <li class="gen_pass">
+                          <div class="checkbox">
+                            <label><input type="checkbox" v-model="number_pass"/>{% trans "Numbers" %}</label>
+                          </div>
+                        </li>
+                        <li class="gen_pass">
+                          <div class="checkbox">
+                            <label><input type="checkbox" v-model="uppercase_pass"/>{% trans "Uppercase" %}</label>
+                          </div>
+                        </li>
+                        <li class="gen_pass">
+                          <div class="checkbox">
+                            <label><input type="checkbox" v-model="symbols_pass"/>{% trans "Symbols" %}</label>
+                          </div>
+                        </li>
+                        <li><button type="button" class="btn bg-navy btn-flat btn-block" v-on:click="generatepass">{% trans "Generate" %}</button></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <p class="error_form" id="id_error_password"></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <label for="id_informations">{% trans "Informations" %}</label>
+                <textarea id="id_informations" name="informations" class="form-control textarea">{{ key.informations }}</textarea>
+                <p class="error_form" id="id_error_informations"></p>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" id="btn-action-keyring" class="btn-action-keyring btn btn-flat btn-success" data-action="savekey">{% trans "Save changes" %}</button>
+            <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" tabindex="-1" id="modal-add-folder" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{% trans "Add a folder" %}</h4>
+        </div>
+        <form action="#" id="form-save-folder">
+          <div class="modal-body">
+            <input type="hidden" v-model="folder_edit"/>
+            <input type="hidden" v-model="folder.id"/>
+            <input type="hidden" v-model="folder.parent"/>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="id_name_folder">{% trans "Name" %}:</label>
+                  <input type="text" id="id_name_folder" v-model="folder.text" class="form-control"/>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="id_icon_folder">{% trans "Icon" %}:</label>
+                  <select id="id_icon_folder">
+                    <option value="fa fa-folder">{% trans "Folder" %}</option>
+                    <option value="fa fa-globe">{% trans "Globe" %}</option>
+                    <option value="fa fa-server">{% trans "Server" %}</option>
+                    <option value="fa fa-database">{% trans "Database" %}</option>
+                    <option value="fa fa-users">{% trans "Team" %}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" id="btn-add-folder" class="submit-form btn btn-flat btn-success" data-action="savekey">{% trans "Save changes" %}</button>
+            <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" tabindex="-1" id="modal-add-workspace" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{% trans "Add a workspace" %}</h4>
+        </div>
+        <form action="#" v-on:submit="form_save_workspace">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="id_name_workspace">{% trans "Name" %}:</label>
+                  <input type="text" id="id_name_workspace" v-model="workspace_name" class="form-control"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" id="btn-create-workspace" class="submit-form btn btn-flat btn-success">{% trans "Save changes" %}</button>
+            <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" tabindex="-1" id="modal-share-workspace" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title"><i class="fa fa-share-alt"></i>&nbsp;&nbsp;{% trans "Share workspace" %}</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="share_users">{% trans "Users" %}</label>
+                <select id="share_users" multiple="multiple" class="form-control select2">
+                  {% for tmp_user in users %}
+                    {% if tmp_user.id != request.user.id %}
+                      <option value="{{ tmp_user.id }}">{{ tmp_user.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+              
+            </div>
+            <!--<div class="col-md-6">
+              <div class="form-group">
+                <label for="share_teams">{% trans "Teams" %}</label>
+                <select id="share_teams" multiple="multiple" class="form-control select2">
+                  {% for tmp_team in teams %}
+                    <option value="{{ tmp_team.id }}">{{ tmp_team.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>-->
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="id_read">{% trans "Read" %}</label>&nbsp;&nbsp;
+                  <input type="checkbox" class="js-switch" id="read" readonly="readonly" checked="checked"/>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="id_write">{% trans "Write" %}</label>&nbsp;&nbsp;
+                  <input type="checkbox" class="js-switch" id="write"/>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <button class="btn btn-flat btn-success pull-right" id="add_users_share"><i class="fa fa-plus"></i>&nbsp;&nbsp;{% trans "Add" %}</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <table class="table table-bordered" id="table_share">
+                <thead>
+                  <tr>
+                    <th>Id</th>
+                    <th>{% trans "User" %}</th>
+                    <th>{% trans "Read" %}</th>
+                    <th>{% trans "Write" %}</th>
+                    <th>{% trans "Action" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-flat btn-success" data-dismiss="modal">{% trans "Done" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" tabindex="-1" id="modal-import-keepass" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{% trans "Import a KeePass Database" %}</h4>
+        </div>
+        <form action="#" id="import-keepass-form" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <p>{% trans "Caution ! Import a KeePass File will erase all existing Keys in this workspace" %}</p>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>{% trans "File" %}:</label>
+                  <input type="file" name="keepass"/>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>{% trans "Passphrase" %}:</label>
+                  <input type="password" name="passphrase_file" class="form-control"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" v-on:click="import_keepass" id="btn-import-file" class="btn btn-flat btn-success">{% trans "Import" %}</button>
+            <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <textarea id="toCopy"></textarea>
+{% endblock %}
+
+{% block css_include %}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.css"/>
+  <link rel="stylesheet" href="{% static 'plugins/contextmenu/contextmenu.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/jstree/themes/default/style.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/switchery/switchery.min.css' %}">
+{% endblock %}
+
+{% block jquery_code %}
+
+{% endblock %}
+
+{% block js_include %}
+  <script src="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.js"></script>
+  <script src="{% static 'plugins/jstree/jstree.js' %}"></script>
+  <script src="{% static 'plugins/jstree/jstree.contextmenu.js' %}"></script>
+  <script src="{% static 'plugins/jstree/jstree.search.js' %}"></script>
+  <script src="{% static 'plugins/jstree/jstree.dnd.js' %}"></script>
+  <script src="{% static 'plugins/contextmenu/contextmenu.min.js' %}"></script>
+  <script src="{% static 'plugins/switchery/switchery.min.js' %}"></script>
+  <script src="{% static 'plugins/datatables/dataTables.bootstrap.js' %}"></script>
+  <script src="{% static 'javascripts/hideshowpass.min.js' %}"></script>
+  <script src="{% static 'plugins/moment.js' %}"></script>
+  <script src="{% static 'javascripts/workspace.js' %}"></script>
+  
+{% endblock %}

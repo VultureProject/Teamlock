@@ -1,0 +1,19 @@
+
+<form method="POST" action="/teams/save/{{team_id}}" id="form_team">
+	{% csrf_token %}
+
+	<div class="row">
+		<div class="col-sm-12">
+			<label for="id_name">{{ form.name.label }}</label>
+			{{ form.name }}
+			<p class="error_form" id="id_error_name"></p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12">
+			<label for="id_users">{{ form.users.label }}</label>
+			{{ form.users }}
+			<p class="error_form" id="id_error_users"></p>
+		</div>
+	</div>
+</form>

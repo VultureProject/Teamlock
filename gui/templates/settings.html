@@ -1,0 +1,257 @@
+{% extends 'layout.html' %}
+{% load i18n %}
+
+{% block nav %}
+
+{% endblock %}
+
+{% block nav_right %}
+  
+{% endblock %}
+
+{% block tree %}
+
+  <div class="tl-tree">
+      <div class="tl-tree-header">
+        <div class="tl-tree-header">
+        <div class="tree-search">
+          <i class="fa fa-cloud">&nbsp;&nbsp;</i>Teamlock
+        </div>
+      </div>
+      </div>
+      <div class="tl-tree-content">
+          
+        <!-- <div class="info-box">
+          <div class="info-box-icon">
+              <i class="fa fa-users"></i>
+          </div>
+          <div class="info-box-content">
+            <span class="info-box-text">{% trans "Connected users" %}</span> 
+            <span class="info-box-number">{{ connected_users }}</span>
+          </div>
+        </div> -->
+
+        <div class="info-box">
+          <div class="info-box-icon">
+              <i class="fa fa-dashboard"></i>
+          </div>
+          <div class="info-box-content">
+            <span class="info-box-text">{% trans "Number of workspaces" %}</span> 
+            <span class="info-box-number">{{ nb_workspaces }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <br/>
+  <div class="col-md-4">
+    <form method="POST" action="/settings/general">
+      {% csrf_token %}
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <i class="fa fa-cog"></i>
+          <h3 class="box-title">{% trans "General Settings" %}</h3>
+        </div>
+        
+        <div class="box-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <label for="id_company_name">{{ general.company_name.label }}</label>
+              {{ general.company_name }}
+              <p class="error_form">{{ general.company_name.errors }}</p>
+            </div>
+
+            <div class="col-sm-12">
+              <label for="id_max_space">{{ cloud.max_space.label }}</label>
+              {{ cloud.max_space }}
+              <p class="error_form">{{ cloud.max_space.errors }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="box-footer">
+          <button type="submit" class="btn btn-flat btn-success pull-right">{% trans "Save" %}</button>
+        </div>
+      </div>
+    </form>
+
+    <form method="POST" action="/settings/mail">
+      {% csrf_token %}
+
+      <div class="box box-warning">
+        <div class="box-header with-border">
+          <i class="fa fa-envelope"></i>
+          <h3 class="box-title">{% trans "Mail Settings" %}</h3>
+        </div>
+        
+        <div class="box-body">
+          <div class="row">
+            <div class="col-md-12 col-sm-12">
+              <label for="id_host">{{ mail.host.label }}</label>
+              {{ mail.host }}
+              <p class="error_form">{{ mail.host.errors }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="button" class="btn btn-flat btn-warning" data-toggle="modal" data-target="#modal">{% trans "Test send mail" %}</button>
+          <button type="submit" class="btn btn-flat btn-success pull-right">{% trans "Save" %}</button>
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="col-md-8">
+
+    <form method="POST" action="/settings/security">
+      {% csrf_token %}
+
+      <div class="box box-success">
+        <div class="box-header with-border">
+          <i class="fa fa-key"></i>
+          <h3 class="box-title">{% trans "Security Settings" %}</h3>
+        </div>
+        
+        <div class="box-body">
+          <div class="row">
+            <div class="col-sm-6">
+              <label for="id_password_change">{{ security.password_change.label }}</label>
+              {{ security.password_change }}
+              <p class="error_form">{{ security.password_change.errors }}</p>
+            </div>
+            <div class="col-sm-6">
+              <label for="id_length_password">{{ security.length_password.label }}</label>
+              {{ security.length_password }}
+              <p class="error_form">{{ security.length_password.errors }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <label for="id_key_size">{{ security.key_size.label }}</label>
+              {{ security.key_size }}
+              <p class="error_form">{{ security.key_size.errors }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="box-footer">
+          <button type="submit" class="btn btn-flat btn-success pull-right">{% trans "Save" %}</button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+
+  <div class="modal fade" tabindex="-1" id="modal" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{% trans "Test MAIL" %}</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <label for="to">{% trans "Recipient" %}</label>
+                <input type="email" id="to" class="form-control"/>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning" data-dismiss="modal">{% trans "Close" %}</button >
+          <button type="button" class="form-submit btn btn-success" id="test_send_mail">{% trans "Send" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+{% endblock %}
+
+{% block css_include %}
+{% endblock %}
+
+{% block js_include %}
+{% endblock %}
+
+{% block jquery_code %}
+  
+  init_control();
+
+  $('#id_enabled').on('change', function(){
+      if ($(this).is(':checked'))
+        $('.log-info').show();
+      else
+          $('.log-info').hide();
+    })
+
+    $('#id_enabled').trigger('change');
+
+  $('#test_send_mail').on('click', function(){
+    var data = {
+      'host': $('#id_host').val(),
+      'to': $('#to').val()
+    }
+
+    $.post(
+      '/sendmail/test',
+      data,
+
+      function(response){
+        if (!response['status']){
+          new PNotify({
+            title   : 'Error',
+            text    : response['error'],
+            type    : 'error',
+            styling : 'bootstrap3',
+            nonblock: {
+                          nonblock: true
+                      }
+                  });
+        } else {
+          new PNotify({
+            title   : 'Success',
+            text    : '{% trans "Mail successfully sent !" %}',
+            type    : 'success',
+            styling : 'bootstrap3',
+            nonblock: {
+                            nonblock: true
+                        }
+                    });
+
+                    $('#modal').modal("hide");
+        }
+      }
+    )
+  })
+
+  $('#database_test').on('click', function(){
+      var data = {
+      'log_backend'  : $('#id_log_backend').val(),
+      'tls_backend'  : $('#id_tls_backend').is(':checked'),
+      'verify_certif': $('#id_verify_certif').is(':checked'),
+      'host_backend' : $('#id_host_backend').val(),
+      'port_backend' : $('#id_port_backend').val(),
+    }
+
+      $.post(
+        '/database/test',
+        data,
+
+        function(response){
+          if (!response['status'])
+            notify('error', 'Error', response['error']);
+          else
+            notify('success', 'Success', '{% trans "Connection successfull" %}');
+        }
+      )
+    })
+
+{% endblock %}
