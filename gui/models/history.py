@@ -25,12 +25,11 @@ __doc__ = ''
 
 
 from django.conf import settings
-from djongo import models
+from django.db import models
 import datetime
 
 
 class History(models.Model):
-    _id = models.ObjectIdField()
     date = models.DateTimeField(default=datetime.datetime.now)
-    action = models.TextfField()
+    action = models.CharField(max_length=255)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

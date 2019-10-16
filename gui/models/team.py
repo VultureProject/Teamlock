@@ -24,12 +24,11 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 from django.conf import settings
-from djongo import models
+from django.db import models
 
 
 class Team(models.Model):
-    _id = models.ObjectIdField()
-    name = models.TextField(unique=True)
+    name = models.CharField(max_length=255, unique=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
     def __str__(self):

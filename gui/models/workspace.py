@@ -24,21 +24,20 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 
-from djongo.models import json as django_json
+from django.contrib.postgres.fields import HStoreField
 from django.utils import timezone
 from django.conf import settings
-from djongo import models
+from django.db import models
 
 
 class Workspace(models.Model):
-    _id = models.ObjectIdField()
-    name = models.TextField()
+    name = models.CharField(max_length=255)
     sym_key = models.TextField()
     date_creation = models.DateTimeField(default=timezone.now)
     last_change = models.DateTimeField(default=timezone.now)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     folders = models.TextField()
-    keys = django_json.JSONField()
+    keys = HStoreField()
 
     def __str__(self):
         return "{} - {}".format(self.name, self.owner)
@@ -54,7 +53,6 @@ class Shared(models.Model):
 
         right: 1: read; 2: read+right; 3: read+right+delete
     """
-    _id = models.ObjectIdField()
     sym_key = models.TextField()
     right = models.IntegerField(default=1)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

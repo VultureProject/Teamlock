@@ -24,14 +24,13 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 from django.conf import settings
-from djongo import models
+from django.db import models
 
 
 class Mobile(models.Model):
-    _id = models.ObjectIdField()
-    name = models.TextField()
-    type_mobile = models.TextField()
-    key = models.TextField()
+    name = models.CharField(max_length=255)
+    type_mobile = models.CharField(max_length=255)
+    key = models.CharField(max_length=255)
     activated = models.BooleanField(default=False)
     join = models.DateField(null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

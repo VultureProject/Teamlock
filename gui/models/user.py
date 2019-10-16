@@ -29,7 +29,7 @@ from teamlock_toolkit.crypto_utils import CryptoUtils
 from django.utils.translation import ugettext as _
 from teamlock_toolkit.managers import UserManager
 from django.conf import settings
-from djongo import models
+from django.db import models
 import logging
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
@@ -37,17 +37,16 @@ logger = logging.getLogger('gui')
 
 
 class TeamlockUser(AbstractBaseUser, PermissionsMixin):
-    _id = models.ObjectIdField()
-    first_name = models.TextField()
-    last_name = models.TextField()
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     email = models.EmailField(max_length=100, unique=True)
     last_change_passwd = models.DateField(blank=False, null=True)
-    last_password = models.TextField(null=True)
+    last_password = models.CharField(max_length=255, null=True)
     private_key = models.TextField(null=True)
     public_key = models.TextField(null=True)
     recovery_passphrase = models.TextField(null=True)
     configure = models.BooleanField(default=False)
-    company = models.TextField()
+    company = models.CharField(max_length=255)
     is_locked = models.BooleanField(default=False)
 
     objects = UserManager()

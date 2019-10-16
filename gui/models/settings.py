@@ -23,23 +23,20 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
-from djongo import models
+from django.db import models
 import datetime
 
 
 class MailSettings(models.Model):
-    _id = models.ObjectIdField()
-    host = models.TextField(default="")
+    host = models.CharField(max_length=255, default="")
 
 
 class SecuritySettings(models.Model):
-    _id = models.ObjectIdField()
     password_change = models.IntegerField(default=100)
     length_password = models.IntegerField(default=8)
     key_size = models.IntegerField(default=4096)
 
 
 class GeneralSettings(models.Model):
-    _id = models.ObjectIdField()
-    company_name = models.TextField()
+    company_name = models.CharField(max_length=255)
     install_year = models.IntegerField(default=datetime.datetime.now().year)

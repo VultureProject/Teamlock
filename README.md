@@ -17,10 +17,13 @@ Then, the symetric key is encrypted using the user public key.
 ## Libraries
 
 - django
-- djongo
 - pycrypto
 
 ## Installation
+
+    $ Install postgresql
+    $ Create a database
+    $ Alter database informations int the settings.py 
 
     $ pip3 install -r requirement.txt
     $ python3 manage.py migrate

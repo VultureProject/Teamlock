@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     'gui',
 ]
 
@@ -119,9 +120,12 @@ WSGI_APPLICATION = 'Teamlock.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'teamlock',
-        'HOST': '127.0.0.1:27017'
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '<db_name>',
+        'HOST': '<db_host>',
+        'PORT': '<db_port>',
+        'USER': '<db_user>',
+        'PASSWORD': '<db_password>'
     }
 }
 
