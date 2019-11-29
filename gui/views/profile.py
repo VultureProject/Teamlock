@@ -26,7 +26,6 @@ __doc__ = ''
 from django.http import JsonResponse, HttpResponseRedirect
 from teamlock_toolkit.tools import update_password_toolkit
 from django.contrib.auth.decorators import login_required
-from teamlock_toolkit.crypto_utils import CryptoUtils
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext as _
 from gui.models.workspace import Workspace, Shared

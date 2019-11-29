@@ -62,8 +62,8 @@ except ImportError:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-DEBUG_LEVEL = "DEBUG"
-DEV_MODE = True
+DEBUG_LEVEL = "INFO"
+DEV_MODE = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -222,3 +222,5 @@ SESSION_REDIS = {
 }
 
 STATIC_URL = '/static/'
+
+PUBLIC_URI = "<https://demo.teamlock.io>"

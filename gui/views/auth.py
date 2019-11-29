@@ -99,8 +99,10 @@ def log_in(request):
             })
 
     url_next = request.GET.get('next', '/')
+    message = None
     return render(request, 'logon.html', {
-        'url_next': url_next
+        'url_next': url_next,
+        'message': message
     })
 
 
