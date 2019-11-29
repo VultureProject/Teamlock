@@ -226,17 +226,8 @@
 
 			$(function(){
 		        $('.select2').select2();
-
-				var page = "{{ path }}";
-				if (page === "/")
-					page = "workspaces"
-				else 
-					page = page.split('/')[1];
-
-		        $("#link_"+page).addClass('active');
-
 		        {% block jquery_code %}{% endblock %}
-		      })
+			})
 	    </script>
 
 	    {% block js_include %}{% endblock %}
