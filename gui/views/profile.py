@@ -40,7 +40,7 @@ import logging.config
 import hashlib
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
-logger = logging.getLogger('auth')
+logger = logging.getLogger('django')
 
 
 @login_required()

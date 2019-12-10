@@ -31,7 +31,7 @@ import smtplib
 import logging
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
-logger = logging.getLogger('mail')
+logger = logging.getLogger('auth')
 
 
 def send_mail_test(config):

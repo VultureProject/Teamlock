@@ -38,7 +38,7 @@ import logging
 import time
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
-logger = logging.getLogger('debug')
+logger = logging.getLogger('workspace')
 
 
 def timeme(func):

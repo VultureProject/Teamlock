@@ -34,7 +34,7 @@ import logging.config
 
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
-logger = logging.getLogger('debug')
+logger = logging.getLogger('django')
 
 
 @user_passes_test(lambda u: u.is_superuser)

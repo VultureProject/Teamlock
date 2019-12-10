@@ -39,7 +39,7 @@ import hashlib
 import json
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
-logger = logging.getLogger('debug')
+logger = logging.getLogger('workspace')
 User = get_user_model()
 
 

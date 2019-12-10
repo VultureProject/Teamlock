@@ -35,7 +35,7 @@ from django.urls import reverse
 import logging.config
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
-logger = logging.getLogger('debug')
+logger = logging.getLogger('django')
 User = get_user_model()
 
 
