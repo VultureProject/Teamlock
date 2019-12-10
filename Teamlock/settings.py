@@ -61,13 +61,13 @@ except ImportError:
     from Teamlock.secret_key import SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 DEBUG_LEVEL = "INFO"
 DEV_MODE = False
 
 ALLOWED_HOSTS = ["*"]
 
-REDIS_HOST = "127.0.0.1"
+REDIS_HOST = "<redis_ip>"
 REDIS_PORT = 6379
 
 # Application definition
@@ -123,7 +123,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': '<db_name>',
         'HOST': '<db_host>',
-        'PORT': '<db_port>',
+        'PORT': 5432,
         'USER': '<db_user>',
         'PASSWORD': '<db_password>'
     }
