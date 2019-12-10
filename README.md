@@ -21,9 +21,11 @@ Then, the symetric key is encrypted using the user public key.
 
 ## Installation
 
+	$ apt update
+	$ apt install libpq-dev
     $ Install postgresql
     $ Create a database
-    $ Alter database informations int the settings.py 
+    $ Alter Postgresql,Redis & Public URI informations in the settings.py 
 
     $ pip3 install -r requirement.txt
     $ python3 manage.py migrate
@@ -43,7 +45,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Teamlock.  If not, see <http://www.gnu.org/licenses/>.
+along with Teamlock. If not, see <http://www.gnu.org/licenses/>.
 
 ## More Information
 
