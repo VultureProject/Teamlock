@@ -70,12 +70,12 @@ urlpatterns = [
     url(r'^users/$', user_view.users, name="users"),
     url(r'^users/edit/$', user_view.edit_users),
     url(r'^users/save/', user_view.save_users),
-    url(r'^users/save/(?P<user_id>[A-Fa-f0-9]+)$', user_view.save_users),
+    url(r'^users/save/(?P<user_id>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})$', user_view.save_users),
     url(r'^users/delete/$', user_view.delete_users),
     url(r'^users/lock/$', user_view.lock_user, name="user_lock"),
 
 
-    url(r'^configure/(?P<user_id>[A-Fa-f0-9]+)?$',
+    url(r'^configure/(?P<user_id>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})?$',
         auth_view.configure_account, name='configure_account'),
 
     url(r'^profile/$', profile_view.profile, name="profile"),

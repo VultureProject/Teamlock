@@ -397,7 +397,7 @@ class WorkspaceUtils(CryptoUtils):
 
             Shared.objects.create(
                 sym_key=encrypted_sym_key,
-                rights=rights,
+                right=rights,
                 user=user,
                 workspace=self.workspace
             )

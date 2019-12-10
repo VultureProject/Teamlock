@@ -224,9 +224,9 @@ def recover_passphrase(request):
     try:
         recovery_file = request.FILES['recovery_file'].read()
         recovery_file = base64.b64decode(recovery_file).decode('utf-8')
-    except KeyError:
+    except Exception:
         return render(request, 'recover_passphrase.html', {
-            'error': _('No recovery file provided')
+            'error': _('Invalid recovery file provided')
         })
 
     try:
@@ -244,8 +244,7 @@ def recover_passphrase(request):
     workspaces = Workspace.objects.filter(owner=user)
     shares = Shared.objects.filter(user=user)
 
-    new_passphrase = hashlib.sha512(
-        new_password.encode('utf-8')).hexdigest()
+    new_passphrase = hashlib.sha512(new_password.encode('utf-8')).hexdigest()
 
     try:
         update_password_toolkit(

@@ -192,12 +192,11 @@ def workspace_share(request):
 
     right = request.POST['right']
     users = json.loads(request.POST['users'])
-    teams = json.loads(request.POST['teams'])
 
     workspace_utils = WorkspaceUtils(
         request.user, workspace_id, session_key=request.session.get('key'))
 
-    status = workspace_utils.share_workspace(passphrase, users, teams, right)
+    status = workspace_utils.share_workspace(passphrase, users, [], right)
 
     if not status['status']:
         return JsonResponse({

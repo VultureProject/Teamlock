@@ -57,41 +57,6 @@
 			</div>
 		</div>
 
-
-		<div class="modal fade" tabindex="-1" id="passphrase-modal" role="dialog">
-		    <form action="#" id="form_passphrase">
-		      <div class="modal-dialog" role="document">
-		        <div class="modal-content">
-		          <div class="modal-header">
-		            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		            <h4 class="modal-title"><i class="fa fa-key"></i>&nbsp;&nbsp;{% trans "Passphrase" %}</h4>
-		          </div>
-		          <div class="modal-body">
-		            <div class="row">
-		              <div class="col-sm-12">
-		                <div class="alert alert-danger alert-dismissible" id="error-passphrase">
-		                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-		                  <span id="passphrase-modal-error"></span>
-		                </div>
-		              </div>
-		            </div>
-		            <div class="row">
-		              <div class="col-md-12 form-group">
-		                <label for="passphrase">Passphrase</label>
-		                <input type="password" id="passphrase" class="form-control"/>
-		              </div>
-		            </div>
-		          </div>
-
-		          <div class="modal-footer">
-		            <button type="submit" id="submit-passphrase" class="btn btn-flat btn-success">{% trans "Submit" %}</button>
-		            <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
-		          </div>
-		        </div>
-		      </div>
-		    </form>
-		</div>
-
 	    <script src="{% url 'javascript-catalog' %}"></script>
 		<script src="{% static 'plugins/jQuery/jquery-2.2.3.min.js' %}"></script>
 	    <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>

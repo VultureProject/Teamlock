@@ -90,7 +90,7 @@ def save_users(request, user_id=None):
         user.save()
 
         if not user_id:
-            configure_uri = settings.PUBLIC_URI + reverse('configure_account', args=(str(user.pk)))
+            configure_uri = settings.PUBLIC_URI + reverse('configure_account', args=(str(user.pk),))
             status, error = registration(configure_uri, user.first_name, user.last_name, user.email)
 
             logger.info('User {} created'.format(user.email))

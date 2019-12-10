@@ -23,20 +23,23 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
+import logging
+
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
-from teamlock_toolkit.crypto_utils import CryptoUtils
-from django.utils.translation import ugettext as _
-from teamlock_toolkit.managers import UserManager
-from django.conf import settings
 from django.db import models
-import logging
+from django.utils.translation import ugettext as _
+from teamlock_toolkit.crypto_utils import CryptoUtils
+from teamlock_toolkit.managers import UserManager
+from uuid import uuid4
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
 logger = logging.getLogger('gui')
 
 
 class TeamlockUser(AbstractBaseUser, PermissionsMixin):
+    _id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(max_length=100, unique=True)
@@ -59,7 +62,7 @@ class TeamlockUser(AbstractBaseUser, PermissionsMixin):
 
     def to_dict(self):
         return {
-            'id': str(self.pk),
+            'id': str(self._id),
             'first_name': self.first_name,
             'last_name': self.last_name,
             'email': self.email,
