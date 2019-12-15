@@ -31,7 +31,6 @@ from gui.views import install as install_view
 from gui.views import folder as folder_view
 from gui.views import auth as auth_view
 from gui.views import user as user_view
-from gui.views import team as team_view
 from gui.views import key as key_view
 from django.conf.urls import url
 from django.urls import path
@@ -62,15 +61,14 @@ urlpatterns = [
 
     url(r'^install/', install_view.install, name="install"),
 
-    # url(r'^teams/$', team_view.teams, name="teams"),
-    # url(r'^teams/edit/$', team_view.edit_teams),
-    # url(r'^teams/save/(?P<team_id>[A-Fa-f0-9]+)$', team_view.save_teams),
-    # url(r'^teams/delete/$', team_view.delete_teams),
-
     url(r'^users/$', user_view.users, name="users"),
     url(r'^users/edit/$', user_view.edit_users),
     url(r'^users/save/', user_view.save_users),
-    url(r'^users/save/(?P<user_id>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})$', user_view.save_users),
+    url(
+        r'^users/save/(?P<user_id>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})$',
+        user_view.save_users
+    ),
+
     url(r'^users/delete/$', user_view.delete_users),
     url(r'^users/lock/$', user_view.lock_user, name="user_lock"),
 
@@ -79,8 +77,6 @@ urlpatterns = [
         auth_view.configure_account, name='configure_account'),
 
     url(r'^profile/$', profile_view.profile, name="profile"),
-    # url(r'^profile/mobile/save/$', profile_view.mobile_save, name="profile"),
-    # url(r'^profile/mobile/del/$', profile_view.mobile_del, name="profile_mobile"),
     url(r'^profile/update/password', profile_view.update_password, name="update_password"),
     url(r'^profile/recovery_file', profile_view.generate_recovery_view, name="generate_recovery_key"),
 
@@ -98,7 +94,7 @@ urlpatterns = [
     url(r'^workspace/share/get/$', workspace_view.workspace_share_get),
     url(r'^workspace/share/delete/$', workspace_view.workspace_share_delete),
     url(r'^workspace/export/$', workspace_view.workspace_export),
-    url(r'^workspace/import/$', workspace_view.workspace_import_keepass, name="workspace_import_file"),
+    url(r'^workspace/import/$', workspace_view.workspace_import_xml_keepass, name="workspace_import_xml_keepass"),
 
     # KEYS
     url(r'^generatepass/$', key_view.generatepass),
