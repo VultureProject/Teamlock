@@ -133,12 +133,6 @@ AUTHENTICATION_BACKENDS = (
     'teamlock_toolkit.auth.AuthenticationBackend',
 )
 
-# AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-#     'is_active': 'cn=active,ou=users,ou=groups,dc=example,dc=org',
-#     'is_staff': 'cn=staff,ou=users,ou=groups,dc=example,dc=org',
-#     'is_superuser': 'cn=superuser,ou=users,ou=groups,dc=example,dc=org',
-# }
-
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
