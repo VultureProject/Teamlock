@@ -23,18 +23,19 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
-from teamlock_toolkit.crypto_utils import CryptoUtils
-from django.utils.translation import ugettext as _
-from gui.models.workspace import Workspace, Shared
-from django.contrib.auth import get_user_model
-from django.conf import settings
-from pykeepass import PyKeePass
-import logging.config
 import datetime
-import tempfile
 import django
 import json
+import logging.config
 import uuid
+import xml.etree.ElementTree as ET
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.utils.translation import ugettext as _
+from gui.models.workspace import Shared
+from gui.models.workspace import Workspace
+from teamlock_toolkit.crypto_utils import CryptoUtils
 
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
@@ -428,38 +429,48 @@ class WorkspaceUtils(CryptoUtils):
             'error': 'BONSOIR'
         }
 
-    def find_group(self, sym_key, group, group_mapping, folders):
-        for subgroup in group.subgroups:
+    def find_group(self, sym_key, group, group_mapping, folders, parent="Racine"):
+        key_mapping = {
+            'Password': 'password',
+            'Title': 'name',
+            'URL': 'uri',
+            'UserName': 'login',
+            'Notes': 'informations'
+        }
+
+        for subgroup in group.findall('Group'):
+            group_name = subgroup.find('Name').text
             pk_folder = self.id_generator()
-            group_mapping[subgroup.name] = pk_folder
+
+            group_mapping[group_name] = pk_folder
+
             folders.append({
                 'id': pk_folder,
-                'text': subgroup.name,
+                'text': group_name,
                 'icon': 'fa fa-folder',
-                'parent': group_mapping[subgroup.parentgroup.name]
+                'parent': group_mapping[parent]
             })
 
             keys = []
-            for entry in subgroup.entries:
+            for entry in subgroup.findall('Entry'):
                 pk_entry = self.id_generator()
                 tmp = {
-                    "id": pk_entry,
-                    "name": entry.title,
-                    "uri": entry.url,
-                    "login": entry.username,
-                    "password": entry.password,
-                    "informations": entry.notes,
-                    "ipv4": "",
-                    "ipv6": "",
-                    "os": ""
+                    "id": pk_entry
                 }
+
+                for entry_value in entry.findall('String'):
+                    key = entry_value.find('Key').text
+                    value = entry_value.find('Value').text
+
+                    if key in ('Notes', 'Password', 'Title', 'URL', 'UserName'):
+                        tmp[key_mapping[key]] = value
 
                 keys.append(tmp)
 
             self.save_change(keys, pk_folder, False, sym_key)
-            self.find_group(sym_key, subgroup, group_mapping, folders)
+            self.find_group(sym_key, subgroup, group_mapping, folders, group_name)
 
-    def import_keepass(self, passphrase, file, passphrase_file):
+    def import_xml_keepass(self, passphrase, file):
         if self.rights < 2:
             return {
                 "status": False,
@@ -476,23 +487,18 @@ class WorkspaceUtils(CryptoUtils):
                 "error": error
             }
 
-        temp_file = tempfile.NamedTemporaryFile()
-
-        for chunk in file.chunks():
-            temp_file.write(chunk)
-
+        content = file.read()
         folders = []
         group_mapping = {
             "Racine": "#"
         }
 
         try:
-            kp = PyKeePass(temp_file.name, password=passphrase_file)
-            root_group = kp.find_groups_by_name("Racine")[0]
+            xml_file = ET.fromstring(content)
+            racine = xml_file.find('Root').find('Group')
 
-            self.find_group(sym_key, root_group, group_mapping, folders)
+            self.find_group(sym_key, racine, group_mapping, folders)
             self.save_change(False, False, folders, sym_key)
-            del kp
 
         except Exception as e:
             logger.critical(e, exc_info=1)

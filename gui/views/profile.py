@@ -23,21 +23,19 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
-from django.http import JsonResponse, HttpResponseRedirect
-from teamlock_toolkit.tools import update_password_toolkit
-from django.contrib.auth.decorators import login_required
-from django.utils.crypto import get_random_string
-from django.utils.translation import ugettext as _
-from gui.models.workspace import Workspace, Shared
-from gui.models.settings import SecuritySettings
-from gui.forms.mobile import MobileForm
-from gui.models.mobile import Mobile
-from gui.forms.user import UserForm
-from django.shortcuts import render
-from django.db import IntegrityError
-from django.conf import settings
-import logging.config
 import hashlib
+import logging.config
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.utils.translation import ugettext as _
+from gui.forms.user import UserForm
+from gui.models.settings import SecuritySettings
+from gui.models.workspace import Shared
+from gui.models.workspace import Workspace
+from teamlock_toolkit.tools import update_password_toolkit
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
 logger = logging.getLogger('django')
@@ -52,51 +50,6 @@ def profile(request, success=False, error=False):
         'success': success,
         'error': error
     })
-
-
-@login_required()
-def mobile_save(request):
-    form_user = UserForm(instance=request.user)
-    mobiles = Mobile.objects.filter(user=request.user)
-    mobile_form = MobileForm(request.POST)
-
-    if not mobile_form.is_valid():
-        return render(request, 'profile.html', {
-            'form_user': form_user,
-            'form_mobile': mobile_form,
-            'mobiles': mobiles
-        })
-
-    mobile = mobile_form.save(commit=False)
-
-    mobile.user = request.user
-    mobile.key = get_random_string(length=8)
-
-    try:
-        mobile.save()
-        # mobile_form.save_m2m()
-    except IntegrityError:
-        return render(request, 'profile.html', {
-            'form_user': form_user,
-            'form_mobile': mobile_form,
-            'mobiles': mobiles
-        })
-
-    return HttpResponseRedirect('/profile')
-
-
-@login_required()
-def mobile_del(request):
-    try:
-        mobile_id = request.POST['id']
-    except KeyError:
-        return JsonResponse({
-            'status': False,
-            'error': _("Mobile not found")
-        })
-
-    Mobile.objects.get(pk=mobile_id).delete()
-    return JsonResponse({'status': True})
 
 
 @login_required

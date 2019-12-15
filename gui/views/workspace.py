@@ -24,19 +24,22 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 
-from teamlock_toolkit.workspace_utils import WorkspaceUtils
-from django.http import JsonResponse, StreamingHttpResponse
-from django.contrib.auth.decorators import login_required
-from teamlock_toolkit.crypto_utils import CryptoUtils
-from gui.models.workspace import Workspace, Shared
-from django.utils.translation import ugettext as _
-from django.contrib.auth import get_user_model
-from django.shortcuts import render
-from django.conf import settings
-from gui.models.team import Team
-import logging.config
 import hashlib
 import json
+import logging.config
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.http import StreamingHttpResponse
+from django.shortcuts import render
+from django.utils.translation import ugettext as _
+from gui.models.team import Team
+from gui.models.workspace import Shared
+from gui.models.workspace import Workspace
+from teamlock_toolkit.crypto_utils import CryptoUtils
+from teamlock_toolkit.workspace_utils import WorkspaceUtils
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
 logger = logging.getLogger('workspace')
@@ -247,16 +250,16 @@ def workspace_export(request):
 
 
 @login_required
-def workspace_import_keepass(request):
+def workspace_import_xml_keepass(request):
     passphrase = request.POST.get('passphrase')
-    passphrase_file = request.POST.get('passphrase_file')
     workspace_id = request.POST['workspace_id']
     file = request.FILES['keepass']
 
     workspace_utils = WorkspaceUtils(
-        request.user, workspace_id, session_key=request.session.get('key'))
+        request.user, workspace_id, session_key=request.session.get('key')
+    )
 
-    status = workspace_utils.import_keepass(passphrase, file, passphrase_file)
+    status = workspace_utils.import_xml_keepass(passphrase, file)
 
     if not status['status']:
         return JsonResponse({
