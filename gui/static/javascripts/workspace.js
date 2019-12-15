@@ -437,7 +437,7 @@ workspace_vue = new Vue({
 			}, 2000);
 		},
 
-		import_keepass: function(e){
+		import_xml_keepass: function(e){
 			e.stopPropagation();
 
 			var passphrase = get_passphrase();
