@@ -851,10 +851,10 @@ keys_table = $('#keys').DataTable({
       {mData: "name", name: "name", width: "10%", defaultContent: "", bVisible: true, aTargets: [1], sClass: "center", bSortable: true},
       {mData: "login", name: "login", width: "10%", defaultContent: "", bVisible: true, aTargets: [2], sClass: "center", bSortable: true},
       {mData: "password", name: "password", width: "15%", defaultContent: "", bVisible: true, aTargets: [3], sClass: "center", bSortable: false, mRender: function(data, type, row){
-      	return "<span class='passwd'>***********</span><button class='btn btn-success btn-xs btn-copy'><i class='fa fa-copy'></i></button>";
+      	return "<span class='passwd'>***********</span><button class='btn btn-success btn-xs btn-copy btn-flat'><i class='fa fa-copy'></i></button>";
       }},
       {mData: "uri", name: "uri", width: "30%", defaultContent: "", bVisible: true, aTargets: [4], sClass: "center", bSortable: true, render: function(data, type, row){
-      	return data + "<a class='btn btn-warning btn-xs btn-link' href='" + data + "' target='_blank'><i class='fa fa-external-link'></i></a>";
+      	return data + "<a class='btn btn-warning btn-xs btn-link btn-flat' href='" + data + "' target='_blank'><i class='fa fa-external-link'></i></a>";
       }},
       {mData: "ipv4", name: "ipv4", width: "10%", defaultContent: "", bVisible: true, aTargets: [5], sClass: "center", bSortable: true},
       {mData: "ipv6", name: "ipv6", width: "10%", defaultContent: "", bVisible: true, aTargets: [6], sClass: "center", bSortable: true},
