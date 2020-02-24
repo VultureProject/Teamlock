@@ -851,10 +851,10 @@ keys_table = $('#keys').DataTable({
       {mData: "name", name: "name", width: "10%", defaultContent: "", bVisible: true, aTargets: [1], sClass: "center", bSortable: true},
       {mData: "login", name: "login", width: "10%", defaultContent: "", bVisible: true, aTargets: [2], sClass: "center", bSortable: true},
       {mData: "password", name: "password", width: "15%", defaultContent: "", bVisible: true, aTargets: [3], sClass: "center", bSortable: false, mRender: function(data, type, row){
-      	return "<span class='passwd'>***********</span><button class='btn btn-success btn-xs btn-copy btn-flat'><i class='fa fa-copy'></i></button>";
+      	return "<span class='passwd'>***********</span><button class='btn btn-primary btn-xs btn-copy btn-flat'><i class='fa fa-copy'></i></button>";
       }},
       {mData: "uri", name: "uri", width: "30%", defaultContent: "", bVisible: true, aTargets: [4], sClass: "center", bSortable: true, render: function(data, type, row){
-      	return data + "<a class='btn btn-warning btn-xs btn-link btn-flat' href='" + data + "' target='_blank'><i class='fa fa-external-link'></i></a>";
+      	return data + "<a class='btn bg-navy btn-xs btn-link btn-flat' href='" + data + "' target='_blank'><i class='fa fa-external-link'></i></a>";
       }},
       {mData: "ipv4", name: "ipv4", width: "10%", defaultContent: "", bVisible: true, aTargets: [5], sClass: "center", bSortable: true},
       {mData: "ipv6", name: "ipv6", width: "10%", defaultContent: "", bVisible: true, aTargets: [6], sClass: "center", bSortable: true},
@@ -864,7 +864,7 @@ keys_table = $('#keys').DataTable({
       	if (workspace_vue.rights < 2)
       		return "";
 
-  		return "<button href='#' class='btn btn-xs btn-flat btn-info btn-edit'><i class='fa fa-edit'></i></button>&nbsp;&nbsp;<button href='#' data-id='" + row.id + "' class='btn btn-xs btn-flat bg-navy btn-delete'><i class='fa fa-trash'></i></button>"
+  		return "<button href='#' class='btn btn-xs btn-flat btn-primary btn-edit'><i class='fa fa-edit'></i></button>&nbsp;&nbsp;<button href='#' data-id='" + row.id + "' class='btn btn-xs btn-flat bg-navy btn-delete'><i class='fa fa-trash'></i></button>"
       }},
       {mData: "folder", name: "folder", defaultContent: "", bVisible: false, aTargets: [9], sClass: "center", bSortable: false, 'sWidth': "1%"},
     ],
@@ -1077,15 +1077,115 @@ keys_table = $('#keys').DataTable({
     		for (var node of nodes)
     			table.fnClose(node);
 
-    		if (aData['informations'] === "")
+    		if ($.inArray(aData.informations, ["", null, undefined]) > -1)
     			return;
 
 		    var sOut = '<b>Information:</b><br/><p>'+aData['informations']+"</p>";
     		table.fnOpen(nRow, sOut, 'details' );
 		    return sOut;
     	})
+
+    	$(nRow).attr('draggable', 'true');
+    },
+
+    drawCallback: function(){
+    	rows = document.querySelectorAll('#keys tbody tr');
+    	[].forEach.call(rows, function(row){
+    		row.addEventListener('dragstart', handleDragStart, false);
+			row.addEventListener('dragenter', handleDragEnter, false)
+			row.addEventListener('dragover', handleDragOver, false);
+			row.addEventListener('dragleave', handleDragLeave, false);
+			row.addEventListener('drop', handleDrop, false);
+			row.addEventListener('dragend', handleDragEnd, false);
+    	})
     }
 })
+
+function handleDragStart(e) {
+  // this / e.target is the source node.
+  
+  // Set the source row opacity
+  this.style.opacity = '0.4';
+  
+  // Keep track globally of the source row and source table id
+  dragSrcRow = this;
+  srcTable = this.parentNode.parentNode.id
+
+  // Allow moves
+  e.dataTransfer.effectAllowed = 'move';
+  
+  // Save the source row html as text
+  e.dataTransfer.setData('text/plain', e.target.outerHTML);
+  
+}
+  
+function handleDragOver(e) {
+  if (e.preventDefault) {
+    e.preventDefault(); // Necessary. Allows us to drop.
+  }
+
+  // Allow moves
+  e.dataTransfer.dropEffect = 'move'; 
+
+  return false;
+}
+
+function handleDragEnter(e) {
+  // this / e.target is the current hover target.  
+  
+  // Get current table id
+  var currentTable = this.parentNode.parentNode.id
+  
+  // Don't show drop zone if in source table
+  if (currentTable !== srcTable) {
+    this.classList.add('over');
+  }
+}
+
+function handleDragLeave(e) {
+  // this / e.target is previous target element.
+  
+  // Remove the drop zone when leaving element
+  this.classList.remove('over');  
+}
+  
+function handleDrop(e) {
+  // this / e.target is current target element.
+
+  if (e.stopPropagation) {
+    e.stopPropagation(); // stops the browser from redirecting.
+  }
+
+  var jstree = $(this.closest('.jstree-anchor'))
+  console.log(jstree)
+
+  // Get destination table id, row
+  var dstTable = $(this.closest('table')).attr('id');
+  var dstRow = $(this).closest('tr');
+
+  // No need to process if src and dst table are the same
+  if (srcTable !== dstTable) {
+  
+    // Get source transfer data
+    var srcData = e.dataTransfer.getData('text/plain');
+
+    // Add row to destination Datatable
+    $('#' + dstTable).DataTable().row.add($(srcData)).draw();
+
+    // Remove ro from source Datatable
+    $('#' + srcTable).DataTable().row(dragSrcRow).remove().draw();
+
+  }
+  return false;
+}
+
+function handleDragEnd(e) {
+  // this/e.target is the source node.
+  
+  // Reset the opacity of the source row
+  this.style.opacity = '1.0';
+
+}
 
 $('#import-keepass-form').on('submit', function(e){
 	e.stopPropagation();
@@ -1166,6 +1266,7 @@ $(document).on('mousemove', function (e) {
     if (!isResizing) 
         return;
 
+	e.preventDefault();
 	var tree_width    = $(tree).width();
 	var content_width = $(content).width();
 

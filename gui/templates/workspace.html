@@ -24,7 +24,7 @@
 
         <div id="div-action-workspace">
           <div class="btn-group" id="btn-action-workspace">
-            <button type="button" data-toggle="modal" data-target="#modal-add-workspace" class="btn btn-default btn-flat"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create a workspace" %}</button>
+            <button type="button" v-on:click="add_folder_root" class="btn btn-default btn-flat"><i class="fa fa-folder">&nbsp;&nbsp;</i>{% trans "Add a folder" %}</button>
             <button type="button" id="dropdown-tool" class="btn btn-default btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
               <span class="sr-only">Toggle Dropdown</span>
@@ -34,6 +34,7 @@
               <li><a href="#" data-toggle="modal" data-target="#modal-share-workspace"><i class="fa fa-share-alt">&nbsp;&nbsp;</i>{% trans "Share workspace" %}</a></li>
               <li><a href="#" data-toggle="tooltip" data-placement="bottom" id="btn-delete-workspace" title="Delete workspace" v-on:click="delete_workspace"><i class="fa fa-trash">&nbsp;&nbsp;</i>{% trans "Delete workspace" %}</a></li>
               <li><a href="#" v-on:click="add_folder_root"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create a root folder" %}</a></li>
+              <li><a href="#" data-toggle="modal" data-target="#modal-add-workspace"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create a workspace" %}</a></li>
             </ul>
           </div>
         </div>
@@ -63,7 +64,7 @@
         <div class="box-title"><i class="fa fa-key"></i>&nbsp;&nbsp;{% trans "Keys" %}</div>
 
         <div class="box-tools pull-right">
-          <a class="tl-header-button" id="btn-add-key"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Add an entry" %}</a>
+          <a class="tl-header-button" id="btn-add-key"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Add" %}</a>
         </div>
       </div>
 
@@ -137,7 +138,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">{% trans "Add a key" %}</h4>
+          <h4 class="modal-title"><i class="fa fa-key">&nbsp;</i>{% trans "Add a key" %}</h4>
         </div>
         <form action="#" id="form-save-key">
           <div class="modal-body" id="edit-key">
@@ -242,7 +243,7 @@
 
           </div>
           <div class="modal-footer">
-            <button type="submit" id="btn-action-keyring" class="btn-action-keyring btn btn-flat btn-success" data-action="savekey">{% trans "Save changes" %}</button>
+            <button type="submit" id="btn-action-keyring" class="btn-action-keyring btn btn-flat btn-primary" data-action="savekey">{% trans "Save changes" %}</button>
             <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
           </div>
         </form>
@@ -284,7 +285,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" id="btn-add-folder" class="submit-form btn btn-flat btn-success" data-action="savekey">{% trans "Save changes" %}</button>
+            <button type="submit" id="btn-add-folder" class="submit-form btn btn-flat btn-primary" data-action="savekey">{% trans "Save changes" %}</button>
             <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
           </div>
         </form>
@@ -311,7 +312,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" id="btn-create-workspace" class="submit-form btn btn-flat btn-success">{% trans "Save changes" %}</button>
+            <button type="submit" id="btn-create-workspace" class="submit-form btn btn-flat btn-primary">{% trans "Save changes" %}</button>
             <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
           </div>
         </form>
@@ -368,7 +369,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <button class="btn btn-flat btn-success pull-right" id="add_users_share"><i class="fa fa-plus"></i>&nbsp;&nbsp;{% trans "Add" %}</button>
+              <button class="btn btn-flat btn-primary pull-right" id="add_users_share"><i class="fa fa-plus"></i>&nbsp;&nbsp;{% trans "Add" %}</button>
             </div>
           </div>
           <div class="row">
@@ -392,7 +393,7 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-flat btn-success" data-dismiss="modal">{% trans "Done" %}</button>
+          <button type="button" class="btn btn-flat btn-primary" data-dismiss="modal">{% trans "Done" %}</button>
         </div>
       </div>
     </div>
@@ -421,7 +422,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" v-on:click="import_xml_keepass" id="btn-import-file" class="btn btn-flat btn-success">{% trans "Import" %}</button>
+            <button type="button" v-on:click="import_xml_keepass" id="btn-import-file" class="btn btn-flat btn-primary">{% trans "Import" %}</button>
             <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
           </div>
         </form>

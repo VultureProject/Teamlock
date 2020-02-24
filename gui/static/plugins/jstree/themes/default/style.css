@@ -307,7 +307,8 @@
   box-shadow: inset 0 0 1px #cccccc;
 }
 .jstree-default .jstree-clicked {
-  background: #beebff;
+  background: #212D32;
+  color: #fff;
   border-radius: 2px;
   box-shadow: inset 0 0 1px #999999;
 }

@@ -118,6 +118,13 @@
 									{{ security.key_size }}
 									<p class="error_form">{{ security.key_size.errors }}</p>
 								</div>
+								<div class="col-md-6 col-sm-12">
+									<label for="id_key_size">{% trans "Backup password" %}</label>
+									<input type="password" class="form-control" name="backup_password" id="id_backup_password"/>
+									<small id="emailHelp" class="form-text text-muted">
+										{% trans "Password used with the API to backup all Workspaces" %}
+									</small>
+								</div>
 							</div>
 			            </div>
 		       		</div>
@@ -224,7 +231,7 @@
 		      			</div>
 		      		</div>
 		      		<div class="row ring-div">
-		      			<img class='ring' id="ring-mail" src="{% static 'dist/img/ring.svg' %}"/>
+		      			<img class='ring' id="ring-mail" src="{% static 'images/ring.svg' %}"/>
 		      		</div>
 		      </div>
 		      <div class="modal-footer">
@@ -335,6 +342,7 @@
 					'email'          : $('#email').val(),
 					'password'       : $('#password').val(),
 					'repassword'     : $('#repassword').val(),
+					'backup_password': $('#id_backup_password').val()
 				},
 
 				function(response){

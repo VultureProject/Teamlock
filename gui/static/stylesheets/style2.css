@@ -386,7 +386,7 @@ ul.jqtree-tree{
 }
 
 .jstree-default .jstree-search{
-	color: #009688 !important;
+	color: #212D32 !important;
 }
 
 #box-keys, #box-files{
@@ -394,7 +394,7 @@ ul.jqtree-tree{
 	box-shadow: none !important;
 	margin-bottom: 0 !important;
 	padding: 0px 5px;
-	border-top: 3px solid #009688 !important;
+	border-top: 3px solid #212D32 !important;
 }
 
 .box-header > .box-tools{
