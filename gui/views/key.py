@@ -102,6 +102,7 @@ def getPassword(request):
     status, error = workspace_utils.get_password(key_id, folder_id, passphrase)
     return result(status, error)
 
+
 @login_required()
 def saveKey(request):
     session_key = request.session['key']
@@ -114,9 +115,9 @@ def saveKey(request):
         "login": request.POST['login'],
         "password": request.POST['password'],
         "uri": request.POST['uri'],
-        "ipv4": request.POST['ipv4'],
-        "ipv6": request.POST['ipv6'],
-        "os": request.POST['os'],
+        "ipv4": request.POST.get('ipv4'),
+        "ipv6": request.POST.get('ipv6'),
+        "os": request.POST.get('os'),
         "informations": request.POST['informations'],
         "folder": request.POST['folder'],
     }

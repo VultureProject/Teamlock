@@ -854,6 +854,9 @@ keys_table = $('#keys').DataTable({
       	return "<span class='passwd'>***********</span><button class='btn btn-primary btn-xs btn-copy btn-flat'><i class='fa fa-copy'></i></button>";
       }},
       {mData: "uri", name: "uri", width: "30%", defaultContent: "", bVisible: true, aTargets: [4], sClass: "center", bSortable: true, render: function(data, type, row){
+      	if ($.inArray(data, [undefined, null, "", "None"]) > -1)
+      		return "";
+
       	return data + "<a class='btn bg-navy btn-xs btn-link btn-flat' href='" + data + "' target='_blank'><i class='fa fa-external-link'></i></a>";
       }},
       {mData: "ipv4", name: "ipv4", width: "10%", defaultContent: "", bVisible: true, aTargets: [5], sClass: "center", bSortable: true},
