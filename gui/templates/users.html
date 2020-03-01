@@ -82,7 +82,6 @@
           <th>{% trans "First name" %}</th>
           <th>{% trans "Last name" %}</th>
           <th>{% trans "Email" %}</th>
-          <th>{% trans "Company" %}</th>
           <th>{% trans "Configured" %}</th>
           <th>{% trans "Staff" %}</th>
           <th>{% trans "Locked" %}</th>
@@ -97,7 +96,6 @@
             <td>{{ user.first_name }}</td>
             <td>{{ user.last_name }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.company }}</td>
             <td>{{ user.configure }}</td>
             <td>{{ user.is_superuser }}</td>
             <td>{{ user.is_locked }}</td>
@@ -229,8 +227,7 @@
       {mData: "first_name", name: "first_name", defaultContent: "", bVisible: true, aTargets: [1], sClass: "center", bSortable: true},
       {mData: "last_name", name: "last_name", defaultContent: "", bVisible: true, aTargets: [2], sClass: "center", bSortable: true},
       {mData: "email", name: "email", defaultContent: "", bVisible: true, aTargets: [3], sClass: "center", bSortable: true},
-      {mData: "company", name: "company", defaultContent: "", bVisible: true, aTargets: [4], sClass: "center", bSortable: true},
-      {mData: "configure", name: "configure", defaultContent: "", bVisible: true, aTargets: [5], sClass: "center", bSortable: true, mRender: function(data, type, row){
+      {mData: "configure", name: "configure", defaultContent: "", bVisible: true, aTargets: [4], sClass: "center", bSortable: true, mRender: function(data, type, row){
         try{
           return check_times(data);
 
@@ -238,7 +235,7 @@
           return data;
         }
       }},
-      {mData: "is_superuser", name: "is_superuser", defaultContent: "", bVisible: true, aTargets: [6], sClass: "center", bSortable: true, mRender: function(data, type, row){
+      {mData: "is_superuser", name: "is_superuser", defaultContent: "", bVisible: true, aTargets: [5], sClass: "center", bSortable: true, mRender: function(data, type, row){
         try{
           return check_times(data);
 
@@ -246,7 +243,7 @@
           return data;
         }
       }},
-      {mData: "is_locked", name: "is_locked", defaultContent: "", bVisible: true, aTargets: [7], sClass: "center", bSortable: true, mRender: function(data, type, row){
+      {mData: "is_locked", name: "is_locked", defaultContent: "", bVisible: true, aTargets: [6], sClass: "center", bSortable: true, mRender: function(data, type, row){
         try{
           return check_times(data);
 
@@ -254,7 +251,7 @@
           return data;
         }
       }},
-      {mData: "action", name: "action", defaultContent: "", bVisible: true, aTargets: [8], sClass: "center", bSortable: false, sWidth: '10%', mRender: function(data, type, row){
+      {mData: "action", name: "action", defaultContent: "", bVisible: true, aTargets: [7], sClass: "center", bSortable: false, sWidth: '10%', mRender: function(data, type, row){
         var action_lock = "lock";
         if (row.is_locked === "true")
           action_lock = "unlock";

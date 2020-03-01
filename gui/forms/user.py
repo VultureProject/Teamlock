@@ -45,12 +45,6 @@ class UserForm(ModelForm):
         widget=EmailInput(attrs={'class': 'form-control'})
     )
 
-    company = CharField(
-        required=False,
-        label=_("Company"),
-        widget=TextInput(attrs={'class': 'form-control'})
-    )
-
     is_superuser = BooleanField(
         label=_("Staff"),
         widget=CheckboxInput(
@@ -60,5 +54,4 @@ class UserForm(ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ('first_name', 'last_name', 'email',
-                  'company', 'is_superuser')
+        fields = ('first_name', 'last_name', 'email', 'is_superuser')

@@ -49,7 +49,6 @@ class TeamlockUser(AbstractBaseUser, PermissionsMixin):
     public_key = models.TextField(null=True)
     recovery_passphrase = models.TextField(null=True)
     configure = models.BooleanField(default=False)
-    company = models.CharField(max_length=255)
     is_locked = models.BooleanField(default=False)
 
     objects = UserManager()
@@ -63,11 +62,10 @@ class TeamlockUser(AbstractBaseUser, PermissionsMixin):
     def to_dict(self):
         return {
             'id': str(self._id),
+            'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
-            'email': self.email,
             'configure': self.configure,
-            'company': self.company,
             'is_locked': self.is_locked,
         }
 

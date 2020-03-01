@@ -42,7 +42,6 @@ class Migration(migrations.Migration):
                 ('public_key', models.TextField(null=True)),
                 ('recovery_passphrase', models.TextField(null=True)),
                 ('configure', models.BooleanField(default=False)),
-                ('company', models.CharField(max_length=255)),
                 ('is_locked', models.BooleanField(default=False)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
                                                   related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
