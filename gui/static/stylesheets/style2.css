@@ -301,7 +301,8 @@ body{
 	margin: 10px 0;
 }
 
-.tree-search{
+.tree-search a{
+	color: #fff;
 }
 
 .tl-icon-nav:hover{
