@@ -81,6 +81,8 @@ class TeamlockUser(AbstractBaseUser, PermissionsMixin):
     @staticmethod
     def select2(configure=True, remove_users=[]):
         users = []
+
+        remove_users.append('backup@teamlock.io')
         for tmp_user in TeamlockUser.objects.filter(configure=configure).exclude(email__in=remove_users):
             users.append({
                 'id': str(tmp_user.pk),
