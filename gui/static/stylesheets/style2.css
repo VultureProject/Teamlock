@@ -269,6 +269,10 @@ body{
 	color: #fff;
 }
 
+.tl-tree-header a{
+	color: #fff;
+}
+
 .tl-tree-search{
 	position: relative;
 	padding: 0 12px;
