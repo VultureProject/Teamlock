@@ -290,6 +290,8 @@ class WorkspaceUtils(CryptoUtils):
                     match = True
                 elif search.lower() in str(key['login']).lower():
                     match = True
+                elif search.lower() in str(key['uri']).lower():
+                    match = True
 
                 if match:
                     key['password'] = "***********"
