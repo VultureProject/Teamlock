@@ -87,6 +87,7 @@ urlpatterns = [
     url(r'^passphrase/$', workspace_view.passphrase),
     url(r'^workspace/$', workspace_view.workspace, name="workspace"),
     url(r'^workspace/new/$', workspace_view.workspace_create),
+    url(r'^workspace/search/$', workspace_view.workspace_search),
     url(r'^workspace/tree/$', workspace_view.workspace_tree),
     url(r'^workspace/keys/$', workspace_view.workspace_keys),
     url(r'^workspace/delete/$', workspace_view.workspace_delete),
@@ -98,6 +99,7 @@ urlpatterns = [
 
     # KEYS
     url(r'^generatepass/$', key_view.generatepass),
+    url(r'^workspace/movekey/$', key_view.moveKey),
     url(r'^workspace/savekey/$', key_view.saveKey),
     url(r'^workspace/delkey/$', key_view.delKey),
     url(r'^workspace/getpasswd', key_view.getPassword),
@@ -105,5 +107,5 @@ urlpatterns = [
     # Folders
     url(r'^workspace/savefolder/$', folder_view.saveFolder),
     url(r'^workspace/movefolder/$', folder_view.moveFolder),
-    url(r'^workspace/delfolder/$', folder_view.delFolder),
+    url(r'^workspace/delfolder/$', folder_view.delFolder)
 ]

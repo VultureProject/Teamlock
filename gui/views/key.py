@@ -104,6 +104,22 @@ def getPassword(request):
 
 
 @login_required()
+def moveKey(request):
+    session_key = request.session['key']
+    workspace_id = request.POST['workspace_id']
+    passphrase = request.POST['passphrase']
+
+    key_id = request.POST['key_id']
+    folder_from = request.POST['folder_from']
+    folder_to = request.POST['folder_to']
+
+    workspace_utils = WorkspaceUtils(
+        request.user, workspace_id=workspace_id, session_key=session_key)
+    status, error = workspace_utils.move_key(key_id, folder_from, folder_to, passphrase)
+    return result(status, error)
+
+
+@login_required()
 def saveKey(request):
     session_key = request.session['key']
     workspace_id = request.POST['workspace_id']

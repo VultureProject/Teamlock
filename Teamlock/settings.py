@@ -62,7 +62,7 @@ except ImportError:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-DEBUG_LEVEL = "INFO"
+LOG_LEVEL = "INFO"
 DEV_MODE = False
 
 ALLOWED_HOSTS = ["*"]
@@ -80,7 +80,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
+    'django_crontab',
     'gui',
+]
+
+CRONJOBS = [
+    ('0 1 * * *', 'gui.cron.backup.backup_workspaces', ["<backup_password>"])
 ]
 
 MIDDLEWARE = [
@@ -167,36 +172,49 @@ USE_L10N = True
 
 USE_TZ = True
 
+LOGGING_FORMAT = '{"date": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "module":"%(module)s", "line_number": %(lineno)s, "message": "%(message)s"}'
+
 
 LOG_SETTINGS = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        "verbose": {
+            "format": LOGGING_FORMAT,
+            "datefmt": "%Y-%m-%dT%H:%M:%S%z"
+        },
+        "simple": {
+            "format": "[%(levelname)s] [<%(name)s>:%(module)s:%(lineno)s] "
+                      "%(message)s"
+        }
+    },
     'handlers': {
         "console": {
             "class": "logging.StreamHandler"
         },
         'file': {
-            'level': DEBUG_LEVEL,
+            'level': LOG_LEVEL,
             'class': 'logging.FileHandler',
             'filename': '/var/log/teamlock/debug.log',
+            'formatter': 'verbose'
         },
     },
     'loggers': {
         'django': {
             'handlers': ['file', 'console'],
-            'level': DEBUG_LEVEL,
+            'level': LOG_LEVEL,
             'propagate': True,
         },
 
         'auth': {
             'handlers': ['file', 'console'],
-            'level': DEBUG_LEVEL,
+            'level': LOG_LEVEL,
             'propagate': True
         },
 
         'workspace': {
             'handlers': ['file', 'console'],
-            'level': DEBUG_LEVEL,
+            'level': LOG_LEVEL,
             'propagate': True
         }
     },
@@ -217,4 +235,4 @@ SESSION_REDIS = {
 
 STATIC_URL = '/static/'
 
-PUBLIC_URI = "<https://demo.teamlock.io>"
+PUBLIC_URI = "http://127.0.0.1:8000"

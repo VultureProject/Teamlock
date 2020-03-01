@@ -35,7 +35,6 @@ from django.http import JsonResponse
 from django.http import StreamingHttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
-from gui.models.team import Team
 from gui.models.workspace import Shared
 from gui.models.workspace import Workspace
 from teamlock_toolkit.crypto_utils import CryptoUtils
@@ -51,7 +50,6 @@ def workspace(request):
     if not request.is_ajax():
         return render(request, "workspace.html", {
             'users': User.select2(configure=True, remove_users=[request.user.email]),
-            'teams': Team.select2()
         })
 
     workspaces = []
@@ -162,6 +160,18 @@ def workspace_keys(request):
 
 
 @login_required
+def workspace_search(request):
+    passphrase = request.POST['passphrase']
+    workspace_id = request.POST['workspace_id']
+    search = request.POST['search']
+
+    workspace_utils = WorkspaceUtils(
+        request.user, workspace_id, session_key=request.session.get('key'))
+    status = workspace_utils.search(passphrase, search)
+    return JsonResponse(status)
+
+
+@login_required
 def workspace_delete(request):
     workspace_id = request.POST['workspace_id']
     workspace = Workspace.objects.filter(pk=workspace_id)
@@ -178,7 +188,7 @@ def workspace_share_get(request):
     workspace = Workspace.objects.get(pk=workspace_id)
 
     shared = []
-    for s in Shared.objects.filter(workspace=workspace):
+    for s in Shared.objects.filter(workspace=workspace).exclude(user=User.objects.get(email="backup@teamlock.io")):
         shared.append(s.to_dict())
 
     return JsonResponse({

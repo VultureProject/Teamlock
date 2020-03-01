@@ -32,10 +32,13 @@ import xml.etree.ElementTree as ET
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.utils import IntegrityError
 from django.utils.translation import ugettext as _
 from gui.models.workspace import Shared
 from gui.models.workspace import Workspace
 from teamlock_toolkit.crypto_utils import CryptoUtils
+
+from xml.dom import minidom
 
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
@@ -145,6 +148,10 @@ class WorkspaceUtils(CryptoUtils):
                 'error': _('Name already exists')
             }
 
+        # Backup user will access the Workspace
+        self.workspace = workspace
+        self.share_workspace(False, [User.objects.get(email="backup@teamlock.io").pk], [], 3, sym_key)
+
         return {
             'status': True,
             'workspace': json.dumps({
@@ -156,7 +163,6 @@ class WorkspaceUtils(CryptoUtils):
 
     def get_tree(self, passphrase):
         pwd = self._decrypt_passphrase(passphrase)
-
         sym_key, error = self.rsa_decrypt(self.sym_key, pwd)
         del passphrase
 
@@ -190,6 +196,7 @@ class WorkspaceUtils(CryptoUtils):
             keys = []
             for k in json.loads(self.sym_decrypt(self.workspace.keys[folder_id], sym_key)):
                 k['password'] = "***********"
+                k['folder'] = folder_id
                 keys.append(k)
 
         except KeyError:
@@ -203,11 +210,12 @@ class WorkspaceUtils(CryptoUtils):
         }
 
     def save_change(self, keys, folder_id, folders, sym_key):
-        if keys and folder_id:
-            self.workspace.keys[folder_id] = self.sym_encrypt(
-                json.dumps(keys), sym_key)
-        elif keys and not folder_id:
-            self.workspace.keys = keys
+        if keys is not None:
+            if folder_id:
+                self.workspace.keys[folder_id] = self.sym_encrypt(
+                    json.dumps(keys), sym_key)
+            elif folder_id:
+                self.workspace.keys = keys
 
         if folders:
             self.workspace.folders = self.sym_encrypt(
@@ -215,6 +223,25 @@ class WorkspaceUtils(CryptoUtils):
 
         self.workspace.last_change = datetime.datetime.now()
         self.workspace.save()
+
+    def move_key(self, key_id, folder_from, folder_to, passphrase):
+        if self.rights < 2:
+            return False, _('You are not allowed to write in this workspace')
+
+        sym_key, error = self.rsa_decrypt(
+            self.sym_key, self._decrypt_passphrase(passphrase))
+
+        if not sym_key:
+            return False, error
+
+        status, key = self.del_key(key_id, folder_from, passphrase)
+        if not status:
+            return False, key
+
+        key['id'] = None
+        key['folder'] = folder_to
+        status, error = self.save_key(key, passphrase)
+        return status, error
 
     def save_key(self, key, passphrase):
         if self.rights < 2:
@@ -248,6 +275,32 @@ class WorkspaceUtils(CryptoUtils):
         del sym_key
         return True, key
 
+    def search(self, passphrase, search):
+        sym_key, error = self.rsa_decrypt(
+            self.sym_key, self._decrypt_passphrase(passphrase))
+        del passphrase
+
+        founded_keys = []
+        for folder_id, encrypted_keys in self.workspace.keys.items():
+            keys = json.loads(self.sym_decrypt(encrypted_keys, sym_key))
+            for key in keys:
+                match = False
+
+                if search.lower() in key['name'].lower():
+                    match = True
+                elif search.lower() in str(key['login']).lower():
+                    match = True
+
+                if match:
+                    key['password'] = "***********"
+                    key['folder'] = folder_id
+                    founded_keys.append(key)
+
+        return {
+            'status': True,
+            "founded_keys": founded_keys
+        }
+
     def get_password(self, key_id, folder_id, passphrase):
         sym_key, error = self.rsa_decrypt(
             self.sym_key, self._decrypt_passphrase(passphrase))
@@ -280,14 +333,19 @@ class WorkspaceUtils(CryptoUtils):
         keys = json.loads(self.sym_decrypt(
             self.workspace.keys[folder_id], sym_key))
 
+        tmp_key = None
         for i in range(len(keys)):
             if keys[i]['id'] == key_id:
+                tmp_key = keys[i]
                 del (keys[i])
                 break
 
+        if tmp_key is None:
+            return False, _('Key not found')
+
         self.save_change(keys, folder_id, False, sym_key)
         del sym_key
-        return True, None
+        return True, tmp_key
 
     def save_folder(self, folder, passphrase):
         if self.rights < 2:
@@ -313,7 +371,7 @@ class WorkspaceUtils(CryptoUtils):
                     folders[i] = folder
                     break
 
-        self.save_change(False, False, folders, sym_key)
+        self.save_change(None, False, folders, sym_key)
         del sym_key
         return True, folder['id']
 
@@ -333,7 +391,7 @@ class WorkspaceUtils(CryptoUtils):
             if folder['id'] == folder_id:
                 folder['parent'] = parent_id
 
-        self.save_change(False, False, folders, sym_key)
+        self.save_change(None, False, folders, sym_key)
         del sym_key
         return True, None
 
@@ -374,34 +432,43 @@ class WorkspaceUtils(CryptoUtils):
         del sym_key
         return True, None
 
-    def share_workspace(self, passphrase, users, teams, rights):
+    def share_workspace(self, passphrase, users, teams, rights, sym_key=False):
         if self.rights < 2:
             return {
                 'status': False,
                 'error': _('You are not allowed to share this this workspace')
             }
 
-        pwd = self._decrypt_passphrase(passphrase)
-        sym_key, error = self.rsa_decrypt(self.sym_key, pwd)
-        del passphrase
+        if sym_key is False:
+            pwd = self._decrypt_passphrase(passphrase)
+            sym_key, error = self.rsa_decrypt(self.sym_key, pwd)
+            del passphrase
 
-        if not sym_key:
-            return {
-                'status': False,
-                'error': error
-            }
+            if not sym_key:
+                return {
+                    'status': False,
+                    'error': error
+                }
 
         for user_id in users:
             user = User.objects.get(pk=user_id)
 
-            encrypted_sym_key = self.rsa_encrypt(sym_key.decode('utf-8'), user.public_key)
+            try:
+                sym_key = sym_key.decode('utf-8')
+            except AttributeError:
+                pass
 
-            Shared.objects.create(
-                sym_key=encrypted_sym_key,
-                right=rights,
-                user=user,
-                workspace=self.workspace
-            )
+            encrypted_sym_key = self.rsa_encrypt(sym_key, user.public_key)
+
+            try:
+                Shared.objects.create(
+                    sym_key=encrypted_sym_key,
+                    right=rights,
+                    user=user,
+                    workspace=self.workspace
+                )
+            except IntegrityError:
+                pass
 
             del encrypted_sym_key
 
@@ -510,3 +577,100 @@ class WorkspaceUtils(CryptoUtils):
         return {
             "status": True
         }
+
+    def export_xml_keepass(self, passphrase):
+        sym_key, error = self.rsa_decrypt(self.sym_key, passphrase)
+        del passphrase
+
+        if not sym_key:
+            return {
+                'status': False,
+                'error': error
+            }
+
+        def get_keys(folder_id):
+            return json.loads(self.sym_decrypt(self.workspace.keys[folder_id], sym_key))
+
+        def find_child(folders, folder_id):
+            childs = []
+            for tmp in folders:
+                if tmp['parent'] == folder_id:
+                    childs.append({
+                        "id": tmp['id'],
+                        "name": tmp['text'],
+                        "childs": find_child(folders, tmp['id']),
+                        "keys": get_keys(tmp['id'])
+                    })
+
+            return childs
+
+        folders = []
+        tmp_folders = json.loads(self.sym_decrypt(self.workspace.folders, sym_key))
+        for tmp in tmp_folders:
+            if tmp['parent'] == "#":
+                tmp_folder = {
+                    "id": tmp['id'],
+                    "name": tmp['text'],
+                    "childs": find_child(tmp_folders, tmp['id']),
+                    "keys": get_keys(tmp['id'])
+                }
+
+                folders.append(tmp_folder)
+
+        top = ET.Element('KeePassFile')
+        comment = ET.Comment("Generated by Teamlock")
+        top.append(comment)
+
+        root = ET.SubElement(top, "Root")
+        group = ET.SubElement(root, "Group")
+
+        name_racine = ET.SubElement(group, "Name")
+        name_racine.text = "Racine"
+
+        def add_keys(parent, keys):
+            def add_string(elem, key, value):
+                string = ET.SubElement(elem, "String")
+                k = ET.SubElement(string, "Key")
+                k.text = key
+
+                v = ET.SubElement(string, "Value")
+                v.text = value
+
+            for key in keys:
+                entry = ET.SubElement(parent, "Entry")
+                add_string(entry, "Title", key['name'])
+                add_string(entry, "UserName", key['login'])
+                add_string(entry, "Password", key['password'])
+                add_string(entry, "URL", key['uri'])
+                add_string(entry, "Notes", key['informations'])
+
+        def add_childs(parent, childs):
+            for child in childs:
+                group = ET.SubElement(parent, "Group")
+                group.text = child['name']
+
+                if len(child['childs']) > 0:
+                    subgroup = ET.SubElement(group, "Group")
+                    add_childs(subgroup, child['childs'])
+                    add_keys(subgroup, child['keys'])
+
+        for folder in folders:
+            group_racine = ET.SubElement(group, "Group")
+            name_folder = ET.SubElement(group_racine, "Name")
+            name_folder.text = folder['name']
+            add_keys(group_racine, folder['keys'])
+
+            if len(folder["childs"]) > 0:
+                child_group = ET.SubElement(group, "Group")
+                add_childs(child_group, folder['childs'])
+
+        with open(f'/Users/olive/Downloads/{self.workspace.pk}.xml', 'w') as f:
+            f.write(prettify(top))
+
+
+def prettify(elem):
+    """Return a pretty-printed XML string for the Element.
+    """
+    rough_string = ET.tostring(elem, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    return reparsed.toprettyxml(indent="  ")

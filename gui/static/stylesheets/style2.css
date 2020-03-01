@@ -84,6 +84,7 @@ body{
 	position: absolute;
 	top:0;
 	left: 0;
+	width: 100%;
 }
 
 .tl-content-header-search input{
@@ -345,7 +346,7 @@ ul.jqtree-tree{
 #dragbar{
    height:100%;
    float: right;
-   width: 1px;
+   width: 5px;
    cursor: col-resize;
 }
 
@@ -417,3 +418,15 @@ ul.jqtree-tree{
 .link_download_recovery{
 	color: #000 !important;
 }
+
+.dropdown-menu>li>a {
+	padding: 3px 10px !important;
+}
+
+.search_workspace{
+	font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}
+

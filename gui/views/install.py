@@ -38,18 +38,9 @@ import datetime
 
 @csrf_exempt
 def install(request):
-    try:
-        user = get_user_model().objects.count()
-        # user = None
-        if user:
-            return HttpResponseRedirect('/')
-
-        get_user_model().objects.all().delete()
-        MailSettings.objects.all().delete()
-        SecuritySettings.objects.all().delete()
-        GeneralSettings.objects.all().delete()
-    except Exception:
-        pass
+    # Check if installation have already be done
+    if get_user_model().objects.count():
+        return HttpResponseRedirect('/')
 
     mail_form = MailSettingsForm(instance=MailSettings())
     security_form = SecuritySettingsForm(instance=SecuritySettings())
@@ -77,6 +68,8 @@ def install(request):
         password = request.POST['password']
         password = request.POST['password']
         repassword = request.POST['repassword']
+
+        backup_password = request.POST['backup_password']
 
         if password != repassword:
             error = _("Password mismatch")
@@ -117,6 +110,20 @@ def install(request):
         superuser.generate_keys(hashlib.sha512(
             password.encode('utf-8')).hexdigest())
         superuser.save()
+
+        backup_user = User(
+            first_name="Backup",
+            last_name="Backup",
+            email="backup@teamlock.io",
+            last_change_passwd=datetime.datetime.now(),
+            configure=True,
+            is_superuser=False
+        )
+
+        backup_user.set_password(password)
+        backup_user.generate_keys(hashlib.sha512(
+            backup_password.encode('utf-8')).hexdigest())
+        backup_user.save()
 
         secu_settings.save()
         try:

@@ -41,7 +41,7 @@ User = get_user_model()
 
 @user_passes_test(lambda u: u.is_superuser)
 def users(request):
-    users = User.objects.all()
+    users = User.objects.all().exclude(email="backup@teamlock.io")
     locked_users = User.objects.filter(is_locked=True).count()
     not_configured_users = User.objects.filter(configure=False).count()
     return render(request, 'users.html', {

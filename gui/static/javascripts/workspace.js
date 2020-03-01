@@ -377,7 +377,6 @@ Vue.config.delimiters = ['${', '}'];
 workspace_vue = new Vue({
 	el: ".tl-content-body",
 	data: {
-		search_tree     : "",
 		search_workspace: "",
 		workspace_name  : "",
 		folder_edit     : false,
@@ -413,13 +412,32 @@ workspace_vue = new Vue({
 	},
 
 	watch: {
-		search_tree: function(s){
-			$('#tree').jstree(true).search(s);
-		},
-
 		search_workspace: function(s){
-			$('#keys').dataTable().fnFilter(s);
-			// $('#files').dataTable().fnFilter(s);
+			// $('#tree').jstree(true).search(s);
+			if (s === ""){
+				var node = $('#tree').jstree('get_selected');
+				this.get_keys(node[0]);
+				return;
+			}
+
+			$.post('/workspace/search/', {
+				csrfmiddlewaretoken: getCookie('csrftoken'),
+				workspace_id: $('#workspaces-select').val(),
+				passphrase: get_passphrase(),
+				search: s
+			}, function(response){
+				if (!response.status){
+					notify('error', 'Error', response.error);
+					return;
+				}
+
+				$("#keys").dataTable().fnClearTable();
+				if (response.founded_keys.length){
+					var keys = response.founded_keys;
+					for (var key of keys)
+						$("#keys").dataTable().fnAddData(key);
+				}
+			})
 		}
 	},
 
@@ -728,26 +746,51 @@ workspace_vue = new Vue({
 			})
 
 			$(document).on('dnd_stop.vakata', function (e, elem) {
-				var ref       = $('#tree').jstree(true);
-				var folder_id = ref.get_node(elem.data.nodes[0]).id;
-				var parent_id = ref.get_node(elem.data.nodes[0]).parent; // '#' = no parent!
+				var ref = $('#tree').jstree(true);
+				if (elem.data.nodes.length > 0){
 
-				$.post('/workspace/movefolder/', {
-					csrfmiddlewaretoken: getCookie('csrftoken'),
-					passphrase         : get_passphrase(),
-					workspace_id       : $('#workspaces-select').val(),
-					parent_id          : parent_id,
-					folder_id          : folder_id
-				}, function(response){
-					if (response.status){
-						for (var i in folders){
-							if (folders[i].id === folder_id)
-								folders[i].parent = parent_id
+					var folder_id = ref.get_node(elem.data.nodes[0]).id;
+					var parent_id = ref.get_node(elem.data.nodes[0]).parent; // '#' = no parent!
+
+					$.post('/workspace/movefolder/', {
+						csrfmiddlewaretoken: getCookie('csrftoken'),
+						passphrase         : get_passphrase(),
+						workspace_id       : $('#workspaces-select').val(),
+						parent_id          : parent_id,
+						folder_id          : folder_id
+					}, function(response){
+						if (response.status){
+							for (var i in folders){
+								if (folders[i].id === folder_id)
+									folders[i].parent = parent_id
+							}
+						} else {
+							notify('error', gettext('Error'), response.error)
 						}
-					} else {
-						notify('error', gettext('Error'), response.error)
-					}
-				})
+					})
+				} else {
+					var folder_from = elem.data.folder_from;
+					var key_id = elem.data.key_id;
+
+					var folder_to = ref.get_node(elem.event.target).id
+
+					$.post('/workspace/movekey/', {
+						csrfmiddlewaretoken: getCookie('csrftoken'),
+						passphrase: get_passphrase(),
+						workspace_id: $('#workspaces-select').val(),
+						folder_from: elem.data.folder_from,
+						folder_to: folder_to,
+						key_id: elem.data.key_id
+					}, function(response){
+						if (!response.status){
+							notify('error', gettext('Error'), response.error)
+							return;
+						}
+
+						$('#' + folder_from + "_anchor").click();
+					})
+				}
+
 			}); 
 
 			$('#tree').on('changed.jstree', function(e, data){
@@ -921,7 +964,6 @@ keys_table = $('#keys').DataTable({
 
     		var span = this;
     		var text = $(span).html();
-    		console.log(text)
     		$(span).html('<i class="fa fa-spinner fa-spin"></i>');
 
     		var data = {
@@ -998,7 +1040,6 @@ keys_table = $('#keys').DataTable({
 					$('#modal-add-key').modal('show');
     			}
     		)			
-
     	})
 
     	$(nRow).find('.btn-delete').click(function(e){
@@ -1088,113 +1129,39 @@ keys_table = $('#keys').DataTable({
 		    return sOut;
     	})
 
-    	$(nRow).attr('draggable', 'true');
-    },
+    	$(nRow).draggable({
+    		cursor: "move",
+    		helper: "clone",
+    		start: function(e, ui){
+    			var item = $("<div>", {
+					id: "jstree-dnd",
+					class: "jstree-default"
+				});
 
-    drawCallback: function(){
-    	rows = document.querySelectorAll('#keys tbody tr');
-    	[].forEach.call(rows, function(row){
-    		row.addEventListener('dragstart', handleDragStart, false);
-			row.addEventListener('dragenter', handleDragEnter, false)
-			row.addEventListener('dragover', handleDragOver, false);
-			row.addEventListener('dragleave', handleDragLeave, false);
-			row.addEventListener('drop', handleDrop, false);
-			row.addEventListener('dragend', handleDragEnd, false);
+				$("<i>", {
+					class: "jstree-icon jstree-er"
+				}).appendTo(item);
+
+				item.append(aData.name);
+				var idRoot = aData.id;
+
+				return $.vakata.dnd.start(e, {
+					jstree: true,
+					from: "table",
+					obj: idRoot,
+					folder_from: aData['folder'],
+					key_id: aData.id,
+					nodes: []
+				}, item);
+    		}
     	})
     }
 })
-
-function handleDragStart(e) {
-  // this / e.target is the source node.
-  
-  // Set the source row opacity
-  this.style.opacity = '0.4';
-  
-  // Keep track globally of the source row and source table id
-  dragSrcRow = this;
-  srcTable = this.parentNode.parentNode.id
-
-  // Allow moves
-  e.dataTransfer.effectAllowed = 'move';
-  
-  // Save the source row html as text
-  e.dataTransfer.setData('text/plain', e.target.outerHTML);
-  
-}
-  
-function handleDragOver(e) {
-  if (e.preventDefault) {
-    e.preventDefault(); // Necessary. Allows us to drop.
-  }
-
-  // Allow moves
-  e.dataTransfer.dropEffect = 'move'; 
-
-  return false;
-}
-
-function handleDragEnter(e) {
-  // this / e.target is the current hover target.  
-  
-  // Get current table id
-  var currentTable = this.parentNode.parentNode.id
-  
-  // Don't show drop zone if in source table
-  if (currentTable !== srcTable) {
-    this.classList.add('over');
-  }
-}
-
-function handleDragLeave(e) {
-  // this / e.target is previous target element.
-  
-  // Remove the drop zone when leaving element
-  this.classList.remove('over');  
-}
-  
-function handleDrop(e) {
-  // this / e.target is current target element.
-
-  if (e.stopPropagation) {
-    e.stopPropagation(); // stops the browser from redirecting.
-  }
-
-  var jstree = $(this.closest('.jstree-anchor'))
-  console.log(jstree)
-
-  // Get destination table id, row
-  var dstTable = $(this.closest('table')).attr('id');
-  var dstRow = $(this).closest('tr');
-
-  // No need to process if src and dst table are the same
-  if (srcTable !== dstTable) {
-  
-    // Get source transfer data
-    var srcData = e.dataTransfer.getData('text/plain');
-
-    // Add row to destination Datatable
-    $('#' + dstTable).DataTable().row.add($(srcData)).draw();
-
-    // Remove ro from source Datatable
-    $('#' + srcTable).DataTable().row(dragSrcRow).remove().draw();
-
-  }
-  return false;
-}
-
-function handleDragEnd(e) {
-  // this/e.target is the source node.
-  
-  // Reset the opacity of the source row
-  this.style.opacity = '1.0';
-
-}
 
 $('#import-keepass-form').on('submit', function(e){
 	e.stopPropagation();
 	e.preventDefault();
 })
-
 
 $('#workspaces-select').on('change', function(){
 	var table = $('#keys').dataTable();
@@ -1238,20 +1205,6 @@ $('#form_passphrase').on('submit', function(){
 		}
 	)
 });
-
-$('#open-history').on('click', function(){
-	if ($(this).data('open') === 'true'){
-		$('.tl-history').css('right', '250px');
-		$(this).find('i')[0].removeClass('fa-chevron-right');
-		$(this).find('i')[0].addClass('fa-chevron-left');
-		$(this).data('open', 'false');
-	} else {
-		$('.tl-history').css('right', '0');
-		$(this).find('i')[0].removeClass('fa-chevron-left');
-		$(this).find('i')[0].addClass('fa-chevron-right');
-		$(this).data('open', 'true');
-	}
-})
 
 var isResizing = false;
 var container  = $('.tl-main'),

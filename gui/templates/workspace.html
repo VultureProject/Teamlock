@@ -33,13 +33,12 @@
               <li><a href="#" data-toggle="modal" data-target="#modal-import-keepass"><i class="fa fa-upload">&nbsp;&nbsp;</i>{% trans "Import XML KeePass File" %}</a></li>
               <li><a href="#" data-toggle="modal" data-target="#modal-share-workspace"><i class="fa fa-share-alt">&nbsp;&nbsp;</i>{% trans "Share workspace" %}</a></li>
               <li><a href="#" data-toggle="tooltip" data-placement="bottom" id="btn-delete-workspace" title="Delete workspace" v-on:click="delete_workspace"><i class="fa fa-trash">&nbsp;&nbsp;</i>{% trans "Delete workspace" %}</a></li>
-              <li><a href="#" v-on:click="add_folder_root"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create a root folder" %}</a></li>
               <li><a href="#" data-toggle="modal" data-target="#modal-add-workspace"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create a workspace" %}</a></li>
             </ul>
           </div>
         </div>
 
-        <input type="text" v-model="search_tree" id="search-tree" class="form-control" placeholder="Search folder"/>
+        <!--<input type="text" v-model="search_tree" id="search-tree" class="form-control" placeholder="Search folder"/>-->
 
         <div id="tree"></div>
       </div>
@@ -51,7 +50,7 @@
 {% block content %}
   <div class="tl-content-header-workspace">
     <div class="tl-content-header-search">
-      <input type="text" v-model="search_workspace" class="form-control" placeholder="Search"/>
+      <input type="text" v-model="search_workspace" class="form-control search_workspace" placeholder="&#xF002; Search"/>
     </div>
     <div class="tl-content-header-button">
     </div>
@@ -61,8 +60,6 @@
     
     <div class="box" id="box-keys">
       <div class="box-header">
-        <div class="box-title"><i class="fa fa-key"></i>&nbsp;&nbsp;{% trans "Keys" %}</div>
-
         <div class="box-tools pull-right">
           <a class="tl-header-button" id="btn-add-key"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Add" %}</a>
         </div>
