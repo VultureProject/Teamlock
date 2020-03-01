@@ -431,7 +431,7 @@
 {% endblock %}
 
 {% block css_include %}
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.css"/>
+  <link rel="stylesheet" href="{% static 'plugins/datatables/datatables.min.css' %}"/>
   <link rel="stylesheet" href="{% static 'plugins/contextmenu/contextmenu.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/jstree/themes/default/style.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/switchery/switchery.min.css' %}">
@@ -442,7 +442,7 @@
 {% endblock %}
 
 {% block js_include %}
-  <script src="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.js"></script>
+  <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
   <script src="{% static 'plugins/jstree/jstree.js' %}"></script>
   <script src="{% static 'plugins/jstree/jstree.contextmenu.js' %}"></script>
   <script src="{% static 'plugins/jstree/jstree.search.js' %}"></script>
