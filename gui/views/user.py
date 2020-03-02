@@ -27,6 +27,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.utils.translation import ugettext as _
 from teamlock_toolkit.mail import registration
 from django.contrib.auth import get_user_model
+from gui.models.workspace import Workspace
 from django.http import JsonResponse
 from django.shortcuts import render
 from gui.forms.user import UserForm
@@ -98,7 +99,7 @@ def save_users(request, user_id=None):
             logger.info('User {} edited'.format(user.email))
 
     except Exception as e:
-        user.delete()
+        raise
         return JsonResponse({
             'status': False,
             'error': str(e)
@@ -109,6 +110,25 @@ def save_users(request, user_id=None):
         'user_id': user_id,
         'user': user.to_dict()
     })
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def get_users_workspaces(request):
+    try:
+        user_id = request.POST['user_id']
+        user = User.objects.get(pk=user_id)
+
+        workspaces = [w.name for w in Workspace.objects.filter(owner=user)]
+
+        return JsonResponse({
+            'status': True,
+            'workspaces': workspaces
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': False,
+            'error': str(e)
+        })
 
 
 @user_passes_test(lambda u: u.is_superuser)

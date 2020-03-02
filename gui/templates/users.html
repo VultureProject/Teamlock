@@ -267,32 +267,69 @@
         e.stopPropagation();
 
         $.post(
-          '/users/delete/',
+          '/users/workspace/',
           {
             'csrfmiddlewaretoken': getCookie('csrftoken'),
             'user_id': aData['id']
           },
 
           function(response){
-            if (typeof(response) === 'string')
-              window.location.href = response;
-
-            if (!response['status']){
-              notify('error', 'Error', response['error']);
-            } else if (response['status']){
-              notify('success', 'success', response['success']);
-
-              var users_table = $('#users').dataTable();
-              var nodes       = users_table.fnGetNodes();
-              for (var i in nodes){
-                var d = users_table.fnGetData(nodes[i]);
-                if (d.id === aData['id']){
-                  var pos = users_table.fnGetPosition(nodes[i]);
-                  users_table.fnDeleteRow(pos);
-                  break;
-                }
-              }
+            if (!response.status){
+              notify('error', gettext('Error'), response.error);
+              return;
             }
+
+            var confirm_text = gettext('Delete this users will remove the following Workspaces:') + "<br/>"
+            for (var i in response.workspaces)
+              confirm_text += "- " + response.workspaces[i] + "<br/>"
+
+            var notice = new PNotify({
+              title: gettext('Confirmation'),
+              text: confirm_text,
+              icon: 'fa fa-trash',
+              hide: false,
+              confirm: {
+                  confirm: true
+              },
+              buttons: {
+                  closer: false,
+                  sticker: false
+              },
+              history: {
+                  history: false
+              }
+            }).get().on('pnotify.confirm', function() {
+
+              $.post(
+                '/users/delete/',
+                {
+                  'csrfmiddlewaretoken': getCookie('csrftoken'),
+                  'user_id': aData['id']
+                },
+
+                function(response){
+                  if (typeof(response) === 'string')
+                    window.location.href = response;
+
+                  if (!response['status']){
+                    notify('error', 'Error', response['error']);
+                  } else if (response['status']){
+                    notify('success', 'success', response['success']);
+
+                    var users_table = $('#users').dataTable();
+                    var nodes       = users_table.fnGetNodes();
+                    for (var i in nodes){
+                      var d = users_table.fnGetData(nodes[i]);
+                      if (d.id === aData['id']){
+                        var pos = users_table.fnGetPosition(nodes[i]);
+                        users_table.fnDeleteRow(pos);
+                        break;
+                      }
+                    }
+                  }
+                }
+              )
+            });
           }
         )
       })
