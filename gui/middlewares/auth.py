@@ -25,7 +25,7 @@ __doc__ = ''
 
 from gui.models.settings import SecuritySettings
 # from gui.models.workspace import Workspace, Shared
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.urls import resolve
 import datetime
 
@@ -50,6 +50,9 @@ def AuthenticationMiddleware(get_response):
 
         if not user.configure:
             return HttpResponseRedirect('/configure/{}'.format(user.id))
+
+        if user.is_locked:
+            return HttpResponseForbidden()
 
         try:
             settings = SecuritySettings.objects.get()

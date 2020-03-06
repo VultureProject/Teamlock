@@ -37,7 +37,9 @@ function get_workspaces(){
 		$('#workspaces-select').find('option').remove();
 	}
 
-	$.getJSON('/workspace', function(response){
+	$.post('/workspace/', {
+		csrfmiddlewaretoken: getCookie('csrftoken')
+	}, function(response){
 		$('#workspaces-select').select2({
 			data: response.workspaces
 		});
@@ -87,7 +89,6 @@ $('#form-save-key').on('submit', function(e){
 		uri         : workspace_vue.key.uri,
 		ipv4        : workspace_vue.key.ipv4,
 		ipv6        : workspace_vue.key.ipv6,
-		os          : $('#os').val(),
 		informations: workspace_vue.key.informations,
 		folder      : workspace_vue.folder
 	}
@@ -102,7 +103,6 @@ $('#form-save-key').on('submit', function(e){
 			uri                : key.uri,
 			ipv4               : key.ipv4,
 			ipv6               : key.ipv6,
-			os                 : key.os,
 			informations       : key.informations,
 			folder             : key.folder,
 			workspace_id       : $('#workspaces-select').val(),
@@ -533,6 +533,28 @@ workspace_vue = new Vue({
 			$('#modal-add-folder').modal('show');
 		},
 
+		backup_workspace: function(){
+			$.post(
+				'/workspace/backup/',
+				{
+					csrfmiddlewaretoken: getCookie('csrftoken'),
+					workspace_id: $('#workspaces-select').val(),
+					passphrase: get_passphrase()
+				},
+
+				function(response){
+					if (!response.status){
+						notify('error', gettext('Error'), response.error);
+						return;
+					}
+
+					var filename = "backup_workspace_" + $('#workspaces-select').val() + ".json"
+					var blob = new Blob([response.backup], {type: "application/json;charset=utf-8"});
+					saveAs(blob, filename);
+				}
+			)
+		},
+
 		delete_workspace: function(){
 
 			var notice = new PNotify({
@@ -892,9 +914,11 @@ keys_table = $('#keys').DataTable({
 	aoColumns  : [
       {mData: "id", name: "id", width: "0%", defaultContent: "", bVisible: false, aTargets: [0], sClass: "center", bSortable: false},
       {mData: "name", name: "name", width: "10%", defaultContent: "", bVisible: true, aTargets: [1], sClass: "center", bSortable: true},
-      {mData: "login", name: "login", width: "10%", defaultContent: "", bVisible: true, aTargets: [2], sClass: "center", bSortable: true},
+      {mData: "login", name: "login", width: "10%", defaultContent: "", bVisible: true, aTargets: [2], sClass: "center", bSortable: true, mRender: function(data, type, row){
+      	return "<span class='btn-copy-login'>" + data + "</span>";
+      }},
       {mData: "password", name: "password", width: "15%", defaultContent: "", bVisible: true, aTargets: [3], sClass: "center", bSortable: false, mRender: function(data, type, row){
-      	return "<span class='passwd'>***********</span><button class='btn btn-primary btn-xs btn-copy btn-flat'><i class='fa fa-copy'></i></button>";
+      	return "<span class='passwd'>***********</span><button class='btn btn-primary btn-xs btn-copy-pass btn-flat'><i class='fa fa-copy'></i></button>";
       }},
       {mData: "uri", name: "uri", width: "30%", defaultContent: "", bVisible: true, aTargets: [4], sClass: "center", bSortable: true, render: function(data, type, row){
       	if ($.inArray(data, [undefined, null, "", "None"]) > -1)
@@ -904,15 +928,14 @@ keys_table = $('#keys').DataTable({
       }},
       {mData: "ipv4", name: "ipv4", width: "10%", defaultContent: "", bVisible: true, aTargets: [5], sClass: "center", bSortable: true},
       {mData: "ipv6", name: "ipv6", width: "10%", defaultContent: "", bVisible: true, aTargets: [6], sClass: "center", bSortable: true},
-      {mData: "os", name: "os", width: "10%", defaultContent: "", bVisible: true, aTargets: [7], sClass: "center", bSortable: true},
-      {mData: "informations", name: "informations", width: "", defaultContent: "", bVisible: false, aTargets: [8], sClass: "center", bSortable: false},
+      {mData: "informations", name: "informations", width: "", defaultContent: "", bVisible: false, aTargets: [7], sClass: "center", bSortable: false},
       {mData: "action", name: "action", width: "5%", defaultContent: "", bVisible: true, aTargets: [9], sClass: "center", bSortable: false, mRender: function(data, type, row){
       	if (workspace_vue.rights < 2)
       		return "";
 
   		return "<button href='#' class='btn btn-xs btn-flat btn-primary btn-edit'><i class='fa fa-edit'></i></button>&nbsp;&nbsp;<button href='#' data-id='" + row.id + "' class='btn btn-xs btn-flat bg-navy btn-delete'><i class='fa fa-trash'></i></button>"
       }},
-      {mData: "folder", name: "folder", defaultContent: "", bVisible: false, aTargets: [9], sClass: "center", bSortable: false, 'sWidth': "1%"},
+      {mData: "folder", name: "folder", defaultContent: "", bVisible: false, aTargets: [8], sClass: "center", bSortable: false, 'sWidth': "1%"},
     ],
     fnCreatedRow: function( nRow, aData, iDataIndex ) {
     	$(nRow).find('.passwd').click(function(e){
@@ -954,7 +977,15 @@ keys_table = $('#keys').DataTable({
     		)
     	});
 
-    	$(nRow).find(".btn-copy").click(function(e){
+    	$(nRow).find('.btn-copy-login').dblclick(function(e){
+    		e.preventDefault();
+    		e.stopPropagation();
+
+    		copy(aData.login);
+    		notify('success', gettext('Data stored in clipboard'));
+    	})
+
+    	$(nRow).find(".btn-copy-pass").click(function(e){
     		// Copying password to buffer
     		e.preventDefault();
     		e.stopPropagation();
@@ -986,6 +1017,7 @@ keys_table = $('#keys').DataTable({
     				}
 
     				copy(response.data);
+    				notify('success', gettext('Data stored in clipboard'));
     			}
     		)			
     	})

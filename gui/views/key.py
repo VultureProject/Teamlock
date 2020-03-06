@@ -133,7 +133,6 @@ def saveKey(request):
         "uri": request.POST['uri'],
         "ipv4": request.POST.get('ipv4'),
         "ipv6": request.POST.get('ipv6'),
-        "os": request.POST.get('os'),
         "informations": request.POST['informations'],
         "folder": request.POST['folder'],
     }

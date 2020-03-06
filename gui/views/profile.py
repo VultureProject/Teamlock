@@ -54,6 +54,9 @@ def profile(request, success=False, error=False):
 
 @login_required
 def update_password(request):
+    if not request.method == "POST":
+        return profile(request)
+
     old_password = request.POST['old_password']
     new_password = request.POST['new_password']
     confirm_password = request.POST['confirm_password']
@@ -79,6 +82,10 @@ def update_password(request):
     if all(c.isalpha() == first_isalpha for c in new_password):
         error = _("The password must contain at least one letter and at least \
                      one digit or punctuation character.")
+        return profile(request, error=error)
+
+    if old_password == new_password:
+        error = _("You must choose a new password")
         return profile(request, error=error)
 
     workspaces = Workspace.objects.filter(owner=request.user)

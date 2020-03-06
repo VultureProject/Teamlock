@@ -253,7 +253,8 @@
       }},
       {mData: "action", name: "action", defaultContent: "", bVisible: true, aTargets: [7], sClass: "center", bSortable: false, sWidth: '10%', mRender: function(data, type, row){
         var action_lock = "lock";
-        if (row.is_locked === "true")
+
+        if (row.is_locked === "True")
           action_lock = "unlock";
 
         return "<button href='#' class='btn btn-xs btn-flat btn-warning lock-link' data-action='{0}'><i class='fa fa-{0}'></i></button>&nbsp;&nbsp;<button href='#' class='btn btn-xs btn-flat btn-danger delete-link'><i class='fa fa-trash'></i></button>".format(action_lock);
@@ -338,10 +339,17 @@
         e.preventDefault();
         e.stopPropagation();
 
+        var url = "{% url 'user_lock' %}";
+        var text = gettext('Lock user ?')
+        if ($(this).data('action') === "unlock"){
+          url = "{% url 'user_unlock' %}";
+          text = gettext('Unlock user ?')
+        }
+
         new PNotify({
             title: gettext('Confirmation'),
-            text: gettext('Lock user ?'),
-            icon: 'fa fa-trash',
+            text: text,
+            icon: 'fa fa-question-circle',
             hide: false,
             confirm: {
                 confirm: true
@@ -355,7 +363,7 @@
             }
         }).get().on('pnotify.confirm', function() {
           $.post(
-            '{% url "user_lock" %}',
+            url,
             {
               'csrfmiddlewaretoken': getCookie('csrftoken'),
               'user_id': aData['id']

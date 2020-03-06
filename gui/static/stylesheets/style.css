@@ -95,7 +95,7 @@ table.dataTable tbody tr:hover{
 	display: none;
 }
 
-.btn-copy, .btn-link{
+.btn-copy-pass, .btn-link{
 	float:right;
 	color: #fff;
 }
@@ -274,4 +274,9 @@ table.dataTable thead > tr > th{
 	background-color: #EEEEEE;
 	height: 100%;
 	margin-top: 10px;
+}
+
+.dropdown-menu-key{
+	width: 600px;
+	padding: 10px;
 }

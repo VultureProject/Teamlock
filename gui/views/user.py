@@ -160,9 +160,28 @@ def lock_user(request):
             'error': _("User not found")
         })
 
-    user.is_active = False
+    user.is_locked = True
     user.save()
     return JsonResponse({
         'status': True,
-        'success': _("User has been deleted !")
+        'success': _("User has been locked !")
+    })
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def unlock_user(request):
+    try:
+        user_id = request.POST['user_id']
+        user = User.objects.get(pk=user_id)
+    except (User.DoesNotExist, KeyError):
+        return JsonResponse({
+            'status': False,
+            'error': _("User not found")
+        })
+
+    user.is_locked = False
+    user.save()
+    return JsonResponse({
+        'status': True,
+        'success': _("User has been unlocked !")
     })

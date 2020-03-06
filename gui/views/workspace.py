@@ -47,7 +47,8 @@ User = get_user_model()
 
 @login_required
 def workspace(request):
-    if not request.is_ajax():
+    print(request.is_ajax())
+    if not request.is_ajax() or request.method == "GET":
         return render(request, "workspace.html", {
             'users': User.select2(configure=True, remove_users=[request.user.email]),
         })
@@ -278,3 +279,26 @@ def workspace_import_xml_keepass(request):
         })
 
     return JsonResponse({'status': True})
+
+
+@login_required
+def workspace_backup(request):
+    passphrase = request.POST.get('passphrase')
+    workspace_id = request.POST['workspace_id']
+
+    workspace_utils = WorkspaceUtils(
+        request.user, workspace_id, session_key=request.session.get('key')
+    )
+
+    status, file = workspace_utils.backup(passphrase, from_ui=True)
+
+    if not status:
+        return JsonResponse({
+            'status': False,
+            'error': file
+        })
+
+    return JsonResponse({
+        'status': True,
+        'backup': json.dumps(file, indent=4)
+    })

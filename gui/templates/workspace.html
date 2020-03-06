@@ -32,6 +32,7 @@
             <ul class="dropdown-menu">
               <li><a href="#" data-toggle="modal" data-target="#modal-import-keepass"><i class="fa fa-upload">&nbsp;&nbsp;</i>{% trans "Import XML KeePass File" %}</a></li>
               <li><a href="#" data-toggle="modal" data-target="#modal-share-workspace"><i class="fa fa-share-alt">&nbsp;&nbsp;</i>{% trans "Share workspace" %}</a></li>
+              <li><a href="#" data-toggle="tooltip" data-placement="bottom" id="btn-delete-workspace" title="Delete workspace" v-on:click="backup_workspace"><i class="fa fa-save">&nbsp;&nbsp;</i>{% trans "Backup workspace" %}</a></li>
               <li><a href="#" data-toggle="tooltip" data-placement="bottom" id="btn-delete-workspace" title="Delete workspace" v-on:click="delete_workspace"><i class="fa fa-trash">&nbsp;&nbsp;</i>{% trans "Delete workspace" %}</a></li>
               <li><a href="#" data-toggle="modal" data-target="#modal-add-workspace"><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create a workspace" %}</a></li>
             </ul>
@@ -77,7 +78,6 @@
               <th>{% trans "URI" %}</th>
               <th>{% trans "IPv4" %}</th>
               <th>{% trans "IPv6" %}</th>
-              <th>{% trans "OS" %}</th>
               <th>{% trans "Informations" %}</th>
               <th>{% trans "Actions" %}</th>
               <th>{% trans "Folder" %}</th>
@@ -143,28 +143,16 @@
             <input type="hidden" v-model="key.folder"/>
             <input type="hidden" v-model="key.id"/>
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <label for="id_name">{% trans "Name" %}</label>
                 <input type="text" class="form-control" id="id_name" v-model="key.name"/>
                 <p class="error_form" id="id_error_name"></p>
               </div>
 
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <label for="id_uri">{% trans "URI" %}</label>
                 <input type="text" class="form-control" id="id_uri" v-model="key.uri"/>
                 <p class="error_form" id="id_error_uri"></p>
-              </div>
-              <div class="col-md-4">
-                <label for="os">{% trans "OS" %}</label>
-                <select class="form-control select2" id="os">
-                  <option value="">---</option>
-                  <option value="BSD">{% trans "BSD" %}</option>
-                  <option value="Linux">{% trans "Linux" %}</option>
-                  <option value="Windows">{% trans "Windows" %}</option>
-                  <option value="MacOSx">{% trans "MacOSx" %}</option>
-                  <option value="Other">{% trans "Other" %}</option>
-                </select>
-                <p class="error_form" id="id_error_os"></p>
               </div>
             </div>
 
@@ -408,7 +396,9 @@
           <div class="modal-body">
             <div class="row">
               <div class="col-md-12">
-                <p>{% trans "Caution ! Import a KeePass File will erase all existing Keys in this workspace" %}</p>
+                <div class="alert alert-danger" role="alert">
+                  <p>{% trans "Caution ! Import a KeePass File will erase all existing Keys in this workspace" %}</p>
+                </div>
               </div>
               <div class="col-md-12">
                 <div class="form-group">
@@ -450,6 +440,7 @@
   <script src="{% static 'plugins/contextmenu/contextmenu.min.js' %}"></script>
   <script src="{% static 'plugins/switchery/switchery.min.js' %}"></script>
   <script src="{% static 'plugins/datatables/dataTables.bootstrap.js' %}"></script>
+  <script src="{% static 'plugins/fileSaver/filesaver.min.js' %}"></script>
   <script src="{% static 'javascripts/hideshowpass.min.js' %}"></script>
   <script src="{% static 'plugins/moment.js' %}"></script>
   <script src="{% static 'javascripts/workspace.js' %}"></script>

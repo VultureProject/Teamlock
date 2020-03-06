@@ -72,6 +72,7 @@ urlpatterns = [
     url(r'^users/workspace/', user_view.get_users_workspaces, name="get_users_workspaces"),
     url(r'^users/delete/$', user_view.delete_users, name="user_delete"),
     url(r'^users/lock/$', user_view.lock_user, name="user_lock"),
+    url(r'^users/unlock/$', user_view.unlock_user, name="user_unlock"),
 
 
     url(r'^configure/(?P<user_id>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})?$',
@@ -91,6 +92,7 @@ urlpatterns = [
     url(r'^workspace/search/$', workspace_view.workspace_search),
     url(r'^workspace/tree/$', workspace_view.workspace_tree),
     url(r'^workspace/keys/$', workspace_view.workspace_keys),
+    url(r'^workspace/backup/$', workspace_view.workspace_backup),
     url(r'^workspace/delete/$', workspace_view.workspace_delete),
     url(r'^workspace/share/$', workspace_view.workspace_share),
     url(r'^workspace/share/get/$', workspace_view.workspace_share_get),

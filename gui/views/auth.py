@@ -59,6 +59,12 @@ def log_in(request):
 
         user = authenticate(username=email, password=password)
 
+        if user.is_locked:
+            return JsonResponse({
+                'status': False,
+                'error': _("Access Forbidden")
+            })
+
         if user:
             last_seen = user.last_login
             login(request, user)
