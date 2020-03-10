@@ -35,7 +35,6 @@ import json
 
 @api_auth()
 def get_workspaces(request):
-    print(request.session.get('key'))
     workspaces = []
     for tmp in Workspace.objects.filter(owner=request.user):
         workspaces.append({
@@ -64,7 +63,7 @@ def get_tree_workspace(request):
         return JsonResponse({
             'status': False,
             'error': _("Please define a workspace ID")
-        })
+        }, status=400)
 
     workspace_utils = WorkspaceUtils(
         request.user, workspace_id, session_key=request.session.get('key'))
@@ -74,7 +73,7 @@ def get_tree_workspace(request):
         return JsonResponse({
             'status': False,
             'error': status['error']
-        })
+        }, status=500)
 
     folders = json.loads(status['folders'])
 
@@ -99,25 +98,23 @@ def get_keys(request):
         return JsonResponse({
             'status': False,
             'error': _("Please define a workspace ID")
-        })
+        }, status=400)
 
     if not folder_id:
         return JsonResponse({
             'status': False,
             'error': _("Please define a folder ID")
-        })
+        }, status=400)
 
     workspace_utils = WorkspaceUtils(
         request.user, workspace_id, session_key=request.session.get('key'))
     status = workspace_utils.get_keys(passphrase, folder_id, api=True)
 
-    print(status)
-
     if not status['status']:
         return JsonResponse({
             'status': False,
             'error': status['error']
-        })
+        }, status=500)
 
     return JsonResponse(status)
 
@@ -129,6 +126,12 @@ def add_key(request):
 
     session_key = request.session['key']
     workspace_id = request.POST.get('workspace_id')
+
+    if not workspace_id:
+        return JsonResponse({
+            'status': False,
+            'error': _("Please define a workspace ID")
+        }, status=400)
 
     key = {
         "id": None,

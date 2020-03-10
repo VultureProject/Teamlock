@@ -1,27 +1,27 @@
-#!/home/vlt-os/env/bin/python
-"""This file is part of Vulture OS.
+#!/usr/bin/python
 
-Vulture OS is free software: you can redistribute it and/or modify
+"""This file is part of Teamlock.
+
+Teamlock is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-Vulture OS is distributed in the hope that it will be useful,
+Teamlock is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Vulture OS.  If not, see http://www.gnu.org/licenses/.
-"""
-__author__ = "Kevin GUILLEMOT"
+along with Teamlock.  If not, see <http://www.gnu.org/licenses/>."""
+
+__author__ = "Olivier de Régis"
 __credits__ = []
 __license__ = "GPLv3"
-__version__ = "4.0.0"
-__maintainer__ = "Vulture OS"
-__email__ = "contact@vultureproject.org"
-__doc__ = 'Frontends API'
-
+__version__ = "3.0.0"
+__maintainer__ = "Teamlock Project"
+__email__ = "contact@teamlock.io"
+__doc__ = ''
 
 import redis
 import uuid
@@ -38,16 +38,18 @@ def api_auth():
     def decorator(func):
         def inner(request, *args, **kwargs):
             jwt = request.headers.get('Authorization')
-            if jwt:
-                redis_client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+            if not jwt:
+                return HttpResponseForbidden()
 
-                token = redis_client.get(f'jwt_token_{jwt}')
-                if not token:
-                    return HttpResponseForbidden()
+            redis_client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+
+            token = redis_client.get(f'jwt_token_{jwt}')
+            if not token:
+                return HttpResponseForbidden()
 
             request.user = get_user_model().objects.get(pk=uuid.UUID(token.decode('utf-8')))
 
-            if not request.headers.get('passphrase'):
+            if not request.headers.get('Passphrase'):
                 return JsonResponse({
                     'status': False,
                     'error': _("Please define encrypted passphrase in headers")

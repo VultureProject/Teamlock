@@ -135,6 +135,18 @@
             "schema": {
               "$ref": "#/definitions/workspace_tree"
             }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/bad_request"
+            }
+          },
+          "500": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
@@ -182,6 +194,18 @@
             "schema": {
               "$ref": "#/definitions/folder_keys"
             }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/bad_request"
+            }
+          },
+          "500": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
           }
         }
       }
@@ -227,10 +251,16 @@
               "$ref": "#/definitions/success_create_key"
             }
           },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/bad_request"
+            }
+          },
           "500": {
             "description": "Error when creating a key",
             "schema": {
-              "$ref": "#/definitions/error_create_key"
+              "$ref": "#/definitions/error"
             }
           }
         }
@@ -275,7 +305,8 @@
       "type": "object",
       "properties": {
         "status": {
-          "type": "boolean"
+          "type": "boolean",
+          "example": false
         },
         "error": {
           "type": "string"
@@ -431,11 +462,24 @@
         }
       }
     },
-    "error_create_key": {
+    "error": {
       "type": "object",
       "properties": {
         "status": {
-          "type": "boolean"
+          "type": "boolean",
+          "example": false
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "bad_request": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "boolean",
+          "example": false
         },
         "error": {
           "type": "string"
