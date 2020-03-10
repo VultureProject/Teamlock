@@ -24,11 +24,8 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 from gui.models.settings import SecuritySettings
-# from gui.models.workspace import Workspace, Shared
 import datetime
-import redis
 
-from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.urls import resolve
