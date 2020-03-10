@@ -150,7 +150,7 @@ def add_key(request):
         return JsonResponse({
             'status': False,
             'error': error
-        })
+        }, status=500)
 
     return JsonResponse({
         'status': True
