@@ -23,14 +23,16 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
+from uuid import uuid4
 
-from django.contrib.postgres.fields import HStoreField
-from django.utils import timezone
 from django.conf import settings
+from django.contrib.postgres.fields import HStoreField
 from django.db import models
+from django.utils import timezone
 
 
 class Workspace(models.Model):
+    _id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=255)
     sym_key = models.TextField()
     date_creation = models.DateTimeField(default=timezone.now)
