@@ -25,9 +25,13 @@ __doc__ = ''
 
 from gui.models.settings import SecuritySettings
 # from gui.models.workspace import Workspace, Shared
-from django.http import HttpResponseForbidden, HttpResponseRedirect
-from django.urls import resolve
 import datetime
+import redis
+
+from django.conf import settings
+from django.http import HttpResponseForbidden
+from django.http import HttpResponseRedirect
+from django.urls import resolve
 
 
 def AuthenticationMiddleware(get_response):
@@ -38,9 +42,6 @@ def AuthenticationMiddleware(get_response):
         # the view (and later middleware) are called.
         # if resolve(request.path_info).url_name == 'install':
                     # return get_response(request)
-
-        if 'api' in request.path_info:
-            pass
 
         user = request.user
         if resolve(request.path_info).url_name in (
@@ -55,10 +56,10 @@ def AuthenticationMiddleware(get_response):
             return HttpResponseForbidden()
 
         try:
-            settings = SecuritySettings.objects.get()
+            settings_teamlock = SecuritySettings.objects.get()
         except SecuritySettings.DoesNotExist:
             return HttpResponseRedirect('/install')
-            settings = SecuritySettings(password_change=100)
+            settings_teamlock = SecuritySettings(password_change=100)
 
         try:
             date_last_change = datetime.datetime(
@@ -68,7 +69,7 @@ def AuthenticationMiddleware(get_response):
             )
 
             if ((datetime.datetime.now() -
-                 date_last_change).days >= settings.password_change):
+                 date_last_change).days >= settings_teamlock.password_change):
                 return HttpResponseRedirect('/changepassword')
         except AttributeError:
             return HttpResponseRedirect('/changepassword')

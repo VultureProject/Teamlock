@@ -23,17 +23,19 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
-from gui.views import workspace as workspace_view
-from gui.views import settings as settings_view
-from django.views.i18n import JavaScriptCatalog
-from gui.views import profile as profile_view
-from gui.views import install as install_view
-from gui.views import folder as folder_view
-from gui.views import auth as auth_view
-from gui.views import user as user_view
-from gui.views import key as key_view
+from api.views import auth as api_auth_view
+from api.views import workspace as api_workspace_view
 from django.conf.urls import url
 from django.urls import path
+from django.views.i18n import JavaScriptCatalog
+from gui.views import auth as auth_view
+from gui.views import folder as folder_view
+from gui.views import install as install_view
+from gui.views import key as key_view
+from gui.views import profile as profile_view
+from gui.views import settings as settings_view
+from gui.views import user as user_view
+from gui.views import workspace as workspace_view
 
 """Teamlock URL Configuration
 
@@ -110,5 +112,11 @@ urlpatterns = [
     # Folders
     url(r'^workspace/savefolder/$', folder_view.saveFolder),
     url(r'^workspace/movefolder/$', folder_view.moveFolder),
-    url(r'^workspace/delfolder/$', folder_view.delFolder)
+    url(r'^workspace/delfolder/$', folder_view.delFolder),
+
+    url(r'^api/auth/$', api_auth_view.api_auth),
+    url(r'^api/workspace/$', api_workspace_view.get_workspaces),
+    url(r'^api/workspace/tree$', api_workspace_view.get_tree_workspace),
+    url(r'^api/workspace/keys$', api_workspace_view.get_keys),
+    url(r'^api/workspace/keys/add$', api_workspace_view.add_key)
 ]

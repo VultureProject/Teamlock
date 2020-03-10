@@ -179,7 +179,7 @@ class WorkspaceUtils(CryptoUtils):
             'rights': self.rights
         }
 
-    def get_keys(self, passphrase, folder_id):
+    def get_keys(self, passphrase, folder_id, api=False):
         pwd = self._decrypt_passphrase(passphrase)
         sym_key, error = self.rsa_decrypt(self.sym_key, pwd)
         del passphrase
@@ -193,7 +193,9 @@ class WorkspaceUtils(CryptoUtils):
         try:
             keys = []
             for k in json.loads(self.sym_decrypt(self.workspace.keys[folder_id], sym_key)):
-                k['password'] = "***********"
+                if not api:
+                    k['password'] = "***********"
+
                 k['folder'] = folder_id
                 keys.append(k)
 
