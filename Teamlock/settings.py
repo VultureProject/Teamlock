@@ -67,7 +67,7 @@ DEV_MODE = True
 
 ALLOWED_HOSTS = ["*"]
 
-REDIS_HOST = "127.0.0.1"
+REDIS_HOST = "<REDIS_HOST>"
 REDIS_PORT = 6379
 
 # Application definition
@@ -126,11 +126,11 @@ WSGI_APPLICATION = 'Teamlock.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'teamlock1',
-        'HOST': '127.0.0.1',
+        'NAME': '<DB_NAME>',
+        'HOST': '<DB_IP>',
         'PORT': 5432,
-        'USER': 'olive',
-        'PASSWORD': 'olive'
+        'USER': '<DB_USER>',
+        'PASSWORD': '<DB_PASSWORD>'
     }
 }
 
@@ -235,6 +235,6 @@ SESSION_REDIS = {
 
 STATIC_URL = '/static/'
 
-PUBLIC_URI = "http://127.0.0.1:8000"
+PUBLIC_URI = "<PUBLIC_URI>"
 
 JWT_EXPIRATION = 300
