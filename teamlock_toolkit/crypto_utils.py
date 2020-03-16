@@ -30,9 +30,10 @@ from Crypto.Cipher import PKCS1_OAEP
 from django.conf import settings
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
-from Crypto.Hash import MD5
 from Crypto import Random
 import logging.config
+import string
+import random
 import base64
 import logging
 import time
@@ -101,8 +102,9 @@ class CryptoUtils:
         pwd = self._decrypt_passphrase(passphrase, session_key=session_key)
 
         sym_key = self.generate_sim()
+        encoded_sym_key = base64.b64encode(bytes(sym_key, 'utf-8')).decode('utf-8')
         encrypted_passphrase = self.sym_encrypt(pwd, sym_key)
-        return encrypted_passphrase, base64.b64encode(bytes(sym_key, 'utf-8')).decode('utf-8')
+        return encrypted_passphrase, encoded_sym_key
 
     def generate_rsa(self, passphrase=None):
         """Generate RSA Private & Public key
@@ -122,7 +124,8 @@ class CryptoUtils:
     def generate_sim(self):
         """Generate symetric key
         """
-        return MD5.new().hexdigest()
+        letters = string.ascii_lowercase + string.digits + string.punctuation
+        return ''.join(random.choice(letters) for i in range(32))
 
     def rsa_encrypt(self, message, public_key=None):
         """
