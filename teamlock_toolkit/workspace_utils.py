@@ -286,11 +286,15 @@ class WorkspaceUtils(CryptoUtils):
             for key in keys:
                 match = False
 
-                if search.lower() in key['name'].lower():
+                name = key['name'] if key['name'] else ""
+                login = key['login'] if key['login'] else ""
+                uri = key['uri'] if key['uri'] else ""
+
+                if search.lower() in name.lower():
                     match = True
-                elif search.lower() in str(key['login']).lower():
+                elif search.lower() in str(login).lower():
                     match = True
-                elif search.lower() in str(key['uri']).lower():
+                elif search.lower() in str(uri).lower():
                     match = True
 
                 if match:
