@@ -67,6 +67,7 @@ class TeamlockUser(AbstractBaseUser, PermissionsMixin):
             'last_name': self.last_name,
             'configure': self.configure,
             'is_locked': self.is_locked,
+            'is_superuser': self.is_superuser
         }
 
     def generate_keys(self, passphrase):

@@ -206,7 +206,7 @@
   })
 
   function check_times(data){
-    if ($.inArray(data, ["True", "true"]) > -1)
+    if ($.inArray(data, ["True", "true", true]) > -1)
       return "<i class='fa fa-check'></i>"
 
     return "<i class='fa fa-times'></i>"

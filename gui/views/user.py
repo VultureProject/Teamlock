@@ -69,7 +69,9 @@ def edit_users(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def save_users(request, user_id=None):
+def save_users(request):
+    user_id = request.GET.get('id')
+    print(user_id)
     is_superuser = False
     if user_id:
         user = User.objects.get(pk=user_id)
@@ -87,7 +89,7 @@ def save_users(request, user_id=None):
     try:
         user = form.save()
 
-        user.is_superuser = is_superuser
+        user.is_superuser = request.POST.get('is_superuser', "") == "on"
         user.save()
 
         if not user_id:
