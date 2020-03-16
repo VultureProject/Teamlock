@@ -274,6 +274,7 @@ table.dataTable thead > tr > th{
 	background-color: #EEEEEE;
 	height: 100%;
 	margin-top: 10px;
+	overflow: scroll;
 }
 
 .dropdown-menu-key{
