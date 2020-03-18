@@ -999,7 +999,7 @@ keys_table = $('#keys').DataTable({
 
     		var data = {
 				key_id             : aData.id,
-				folder_id          : aData.folder_id,
+				folder_id          : aData.folder,
 				passphrase         : get_passphrase(),
 				workspace_id       : $('#workspaces-select').val(),
 				csrfmiddlewaretoken: getCookie('csrftoken'),
@@ -1038,7 +1038,7 @@ keys_table = $('#keys').DataTable({
 
 			var data = {
 				key_id             : aData.id,
-				folder_id          : workspace_vue.folder,
+				folder_id          : aData.folder,
 				passphrase         : get_passphrase(),
 				workspace_id       : $('#workspaces-select').val(),
 				csrfmiddlewaretoken: getCookie('csrftoken'),
