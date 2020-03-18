@@ -71,7 +71,6 @@ def edit_users(request):
 @user_passes_test(lambda u: u.is_superuser)
 def save_users(request):
     user_id = request.GET.get('id')
-    print(user_id)
     is_superuser = False
     if user_id:
         user = User.objects.get(pk=user_id)

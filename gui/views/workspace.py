@@ -47,7 +47,6 @@ User = get_user_model()
 
 @login_required
 def workspace(request):
-    print(request.is_ajax())
     if not request.is_ajax() or request.method == "GET":
         return render(request, "workspace.html", {
             'users': User.select2(configure=True, remove_users=[request.user.email]),
