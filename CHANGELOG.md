@@ -1,5 +1,11 @@
 # Teamlock
 
+## Version 0.3
+--------------------------
+### Fixed
+- [GUI] Bug fix when copying a password after a search
+
+
 ## Version 0.2
 --------------------------
 ### Added
