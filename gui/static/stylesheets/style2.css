@@ -64,6 +64,7 @@ body{
 	position: relative;
 	margin-left: 250px;
 	height: 100%;
+	padding-bottom: 20px;
 }
 
 .tl-content-header-workspace{
@@ -125,7 +126,7 @@ body{
 
 .tl-content-workspace{
 	position: relative;
-	overflow: hidden;
+	overflow: auto;
 	height  : 100%;
 	width   : 100%;
 	float   : left;
@@ -396,7 +397,6 @@ ul.jqtree-tree{
 }
 
 #box-keys, #box-files{
-	height: 46%;
 	box-shadow: none !important;
 	margin-bottom: 0 !important;
 	padding: 0px 5px;
