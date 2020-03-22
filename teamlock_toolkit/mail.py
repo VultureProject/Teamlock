@@ -41,7 +41,7 @@ def send_mail_test(config):
         server.ehlo()
 
         msg = MIMEMultipart()
-        msg['From'] = "test.teamlock.io"
+        msg['From'] = "test@teamlock.io"
         msg['To'] = config['to']
         msg['Subject'] = "TeamLock: Test message"
 
@@ -66,7 +66,7 @@ def send_mail(to, message, subject="Teamlock"):
         server.ehlo()
 
         msg = MIMEMultipart()
-        msg['From'] = "contact.teamlock.io"
+        msg['From'] = "contact@teamlock.io"
         msg['To'] = to
         msg['Subject'] = subject
 
