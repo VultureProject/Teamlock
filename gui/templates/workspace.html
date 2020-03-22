@@ -14,7 +14,7 @@
     <div class="tl-tree">
       <div id="dragbar"></div>
       <div class="tl-tree-header">
-        <a href="/"><i class="fa fa-cloud">&nbsp;&nbsp;</i>Teamlock</a>
+        <a href="{% url 'gui:workspace' %}"><img src="{% static 'images/logos/logo_large.png' %}" class="logo"/></a>
       </div>
       <div class="tl-tree-content">
         <div class="tree-search">
@@ -38,8 +38,6 @@
             </ul>
           </div>
         </div>
-
-        <!--<input type="text" v-model="search_tree" id="search-tree" class="form-control" placeholder="Search folder"/>-->
 
         <div id="tree"></div>
       </div>

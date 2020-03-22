@@ -1,5 +1,5 @@
 {% extends 'layout.html' %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block nav %}
 
@@ -14,10 +14,10 @@
   <div class="tl-tree">
       <div class="tl-tree-header">
         <div class="tl-tree-header">
-        <div class="tree-search">
-          <i class="fa fa-cloud">&nbsp;&nbsp;</i>Teamlock
+          <div class="tree-search">
+            <a href="{% url 'gui:workspace' %}"><img src="{% static 'images/logos/logo_large.png' %}" class="logo"/></a>
+          </div>
         </div>
-      </div>
       </div>
       <div class="tl-tree-content">
           
@@ -50,7 +50,7 @@
 
   <br/>
   <div class="col-md-4">
-    <form method="POST" action="/settings/general">
+    <form method="POST" action="{% url 'gui:settings' classe_name='general' %}">
       {% csrf_token %}
       <div class="box">
         <div class="box-header with-border">
@@ -80,7 +80,7 @@
       </div>
     </form>
 
-    <form method="POST" action="/settings/mail">
+    <form method="POST" action="{% url 'gui:settings' classe_name='mail' %}">
       {% csrf_token %}
 
       <div class="box">
@@ -109,7 +109,7 @@
 
   <div class="col-md-8">
 
-    <form method="POST" action="/settings/security">
+    <form method="POST" action="{% url 'gui:settings' classe_name='security'%}">
       {% csrf_token %}
 
       <div class="box">
@@ -195,13 +195,14 @@
     $('#id_enabled').trigger('change');
 
   $('#test_send_mail').on('click', function(){
+    console.log('okokok')
     var data = {
       'host': $('#id_host').val(),
       'to': $('#to').val()
     }
 
     $.post(
-      '/sendmail/test',
+      '{% url "gui:test_send_mail" %}',
       data,
 
       function(response){

@@ -24,15 +24,15 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 from api.views import auth as api_auth_view
+from api.views import main as api_main_view
 from api.views import workspace as api_workspace_view
 from django.conf.urls import url
-from django.urls import path
-from django.views.i18n import JavaScriptCatalog
-from django.conf.urls import include
-
 
 urlpatterns = [
-    path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
-    path("", include(("gui.urls", "gui"), namespace="gui")),
-    path('api/', include(("api.urls", "api"), namespace="api"))
+    url(r'^version/$', api_main_view.version),
+    url(r'^auth/$', api_auth_view.api_auth),
+    url(r'^workspace/$', api_workspace_view.get_workspaces),
+    url(r'^workspace/tree$', api_workspace_view.get_tree_workspace),
+    url(r'^workspace/keys$', api_workspace_view.get_keys),
+    url(r'^workspace/keys/add$', api_workspace_view.add_key)
 ]

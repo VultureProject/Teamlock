@@ -15,7 +15,7 @@
       <div class="tl-tree-header">
         <div class="tl-tree-header">
         <div class="tree-search">
-          <a href="/"><i class="fa fa-cloud">&nbsp;&nbsp;</i>Teamlock</a>
+          <a href="{% url 'gui:workspace' %}"><img src="{% static 'images/logos/logo_large.png' %}" class="logo"/></a>
         </div>
       </div>
       </div>
@@ -52,41 +52,8 @@
 {% block content %} 
   
   <br/>
-  <div class="col-md-6">  
-    <form method="POST" action="/users/save/{{request.user.id}}" id="form_user">
-      {% csrf_token %}
-      <div class="box box-primary">
-        <div class="box-header with-border">
-          <h3 class="box-title">{% trans "Your informations" %}</h3>
-        </div>
-        <div class="box-body">
-          <div class="row">
-            <div class="col-sm-6">
-              <label for="id_first_name">{{ form_user.first_name.label }}</label>
-              {{ form_user.first_name }}
-              <p class="error_form" id="id_error_first_name"></p>
-            </div>
-            <div class="col-sm-6">
-              <label for="id_last_name">{{ form_user.last_name.label }}</label>
-              {{ form_user.last_name }}
-              <p class="error_form" id="id_error_last_name"></p>
-            </div>
-
-            <div class="col-sm-6">
-              <label for="id_email">{{ form_user.email.label }}</label>
-              {{ form_user.email }}
-              <p class="error_form" id="id_error_email"></p>
-            </div>
-          </div>
-        </div>
-        <div class="box-footer">
-          <button type="submit" class="btn btn-flat btn-primary pull-right">{% trans "Save" %}</button>
-        </div>
-      </div>
-    </form>
-  </div>
-  <div class="col-sm-6">
-    <form method="POST" action="{% url 'update_password' %}">
+  <div class="col-md-6 col-md-offset-2">
+    <form method="POST" class="form-horizontal" action="{% url 'gui:update_password' %}">
       {% csrf_token %}
       <div class="box box-primary">
         <div class="box-header with-border">
@@ -94,17 +61,23 @@
         </div>
         <div class="box-body">
           <div class="row">
-            <div class="col-md-12">
-              <label for="id_old_password">{% trans "Old Password" %}</label>
-              <input type="password" name="old_password" id="id_old_password" class="form-control" required="required"/>
+            <div class="col-md-12 form-group">
+              <label class="col-md-3 control-label" for="id_old_password">{% trans "Old Password" %}:</label>
+              <div class="col-md-8">
+                <input type="password" name="old_password" id="id_old_password" class="form-control" required="required"/>
+              </div>
             </div>
-            <div class="col-md-12">
-              <label for="id_new_password">{% trans "New Password" %}</label>
-              <input type="password" name="new_password" id="id_new_password" class="form-control" required="required"/>
+            <div class="col-md-12 form-group">
+              <label class="col-md-3 control-label" for="id_new_password">{% trans "New Password" %}:</label>
+              <div class="col-md-8">
+                <input type="password" name="new_password" id="id_new_password" class="form-control" required="required"/>
+              </div>
             </div>
-            <div class="col-md-12">
-              <label for="id_confirm_password">{% trans "Repeat Password" %}</label>
-              <input type="password" name="confirm_password" id="id_confirm_password" class="form-control" required="required"/>
+            <div class="col-md-12 form-group">
+              <label class="col-md-3 control-label" for="id_confirm_password">{% trans "Repeat Password" %}:</label>
+              <div class="col-md-8">
+              <input type="password" name="confirm_password"  id="id_confirm_password" class="form-control" required="required"/>
+              </div>
             </div>
           </div>
         </div>
@@ -114,64 +87,6 @@
       </div>
     </form>
   </div>
-
-  <!--<div class="col-sm-6">
-    <form method="POST" action="/profile/mobile/save/" id="form_mobile">
-      {% csrf_token %}
-      <div class="box box-warning">
-        <div class="box-header with-border">
-          <h3 class="box-title"><i class="fa fa-tablet">&nbsp;&nbsp;</i>{% trans "Mobiles" %}</h3>
-        </div>
-        <div class="box-body">
-            <div class="row">
-              <div class="col-md-12">
-                <table class="table no-margin">
-                  <thead>
-                  <tr>
-                    <th>{% trans "Name" %}</th>
-                    <th>{% trans "Type" %}</th>
-                    <th>{% trans "Activated" %}</th>
-                    <th>{% trans "Join" %}</th>
-                    <th>{% trans "Key" %}</th>
-                    <th>{% trans "Action" %}</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    {% for mobile in mobiles %}
-                      <tr>
-                        <td>{{ mobile.name }}</td>
-                        <td>{{ mobile.type_mobile|safe }}</td>
-                        <td>{{ mobile.activated|safe }}</td>
-                        <td>{{ mobile.join }}</td>
-                        <td>{{ mobile.key }}</td>
-                        <td>{{ mobile.action|safe }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-6">
-                <label for="id_name">{{ form_mobile.name.label }}</label>
-                {{ form_mobile.name }}
-                <p class="error_form" id="id_error_name"></p>
-              </div>
-              <div class="col-sm-6">
-                <label for="id_type_mobile">{{ form_mobile.type_mobile.label }}</label>
-                {{ form_mobile.type_mobile }}
-                <p class="error_form" id="id_error_type_mobile"></p>
-              </div>
-            </div>
-        </div>
-
-        <div class="box-footer">
-          <button type="submit" class="btn btn-flat btn-success pull-right">{% trans "Save" %}</button>
-        </div>
-      </div>
-    </form>
-  </div>-->
 
 {% endblock %}
 
@@ -191,59 +106,5 @@
   {% if success %}
     notify('success', gettext('Success'), '{{ success }}');
   {% endif %}
-
-  $('#form_user').on('submit', function(e){
-    $('.error_form').html('')
-    e.preventDefault();
-
-    $.post(
-      $(this).attr('action'),
-      $(this).serialize(),
-
-      function(response){
-        if (response.status){
-          notify('success', 'Success', '{% trans "Informations updated !" %}')
-        } else {
-          if (typeof(response['error']) === "string"){
-            notify('error', 'Error', response['error']);
-            $('#edit-modal-user').modal('hide');
-            
-          } else {
-            $.each(response['error'], function(key, value){
-              $('#id_error_'+key).html(value[0]);
-            })
-          }
-        }
-      }
-    )
-  })
-  
-  $('.action').on('click', function(e){
-    e.preventDefault();
-    e.stopPropagation();
-
-    var id = $(this).data('id')
-    console.log(id)
-
-    if ($(this).data('action') === 'delete'){
-      var btn = this;
-      $.post(
-        '/profile/mobile/del/',
-        {
-          'id': id,
-          'csrfmiddlewaretoken': getCookie('csrftoken')
-        },
-
-        function(response){
-          if (response['status']){
-            notify('success', 'Success', '{% trans "Mobile deleted" %}');
-            $(btn).parents('tr').remove();
-          } else {
-            notify('error', 'Error', response['error']);
-          }
-        }
-      )
-    }
-  })
 
 {% endblock %}

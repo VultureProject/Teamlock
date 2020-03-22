@@ -1,5 +1,5 @@
 
-<form method="POST" action="/users/save/?id={{user_id}}" id="form_user">
+<form method="POST" action="{% url 'gui:user_save' %}?id={{user_id}}" id="form_user">
 	{% csrf_token %}
 
 	<div class="row">

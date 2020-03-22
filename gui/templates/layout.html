@@ -6,17 +6,15 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	    <title>TeamLock</title>
 
+		<link rel="icon" href="{% static 'images/favicon.ico' %}"/>
 	    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
 	    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
 	    <link rel="stylesheet" href="{% static 'plugins/font-awesome/css/font-awesome.min.css' %}">
-	    <link rel="stylesheet" href="{% static 'plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css' %}">
 	    <link rel="stylesheet" href="{% static 'plugins/pnotify/pnotify.min.css' %}">
 	    <link rel="stylesheet" href="{% static 'plugins/select2/select2.css' %}">
-	    <link rel="stylesheet" href="{% static 'plugins/datepicker/datepicker3.css' %}">
 	    <link rel="stylesheet" href="{% static 'plugins/switchery/switchery.min.css' %}">
 	    <link rel="stylesheet" href="{% static 'stylesheets/AdminLTE.min.css' %}">
-	    <link rel="stylesheet" href="{% static 'plugins/iCheck/all.css' %}">
 	    <link rel="stylesheet" href="{% static 'stylesheets/style2.css' %}">
 	    <link rel="stylesheet" href="{% static 'stylesheets/style.css' %}">
 
@@ -34,18 +32,17 @@
 					<div class="tl-top">
 						<div class="tl-top-head">
 							<ul class="main-menu">
-								<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Workspaces" id="link_workspaces"><a href="/"><i class="fa fa-dashboard"></i></a></li>
+								<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Workspaces" id="link_workspaces"><a href="{% url 'gui:workspace' %}"><i class="fa fa-dashboard"></i></a></li>
 								{% if request.user.is_superuser %}
-									<!--<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Teams" id="link_teams"><a href="/teams"><i class="fa fa-users"></i></a></li>-->
-									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Users" id="link_users"><a href="/users"><i class="fa fa-user"></i></a></li>
-									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Settings" id="link_settings"><a href="/settings"><i class="fa fa-cogs"></i></a></li>
+									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Users" id="link_users"><a href="{% url 'gui:users' %}"><i class="fa fa-user"></i></a></li>
+									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Settings" id="link_settings"><a href="{% url 'gui:settings' %}"><i class="fa fa-cogs"></i></a></li>
 								{% endif %}
 							</ul>
 
 							<a class="dropdown-toggle tl-top-icon" href="#" id="menu1" data-toggle="dropdown">{{ request.user.email }}&nbsp;&nbsp;&nbsp;<span class="caret"></span></a>
 							<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="menu1">
-						      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'profile' %}"><i class="fa fa-user">&nbsp;&nbsp;</i>{% trans "Profile" %}</a></li>
-						      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'log_out' %}"><i class="fa fa-sign-out">&nbsp;&nbsp;</i>{% trans "Logout" %}</a></li>
+						      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'gui:profile' %}"><i class="fa fa-user">&nbsp;&nbsp;</i>{% trans "Profile" %}</a></li>
+						      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'gui:log_out' %}"><i class="fa fa-sign-out">&nbsp;&nbsp;</i>{% trans "Logout" %}</a></li>
 						    </ul>
 						</div>
 					</div>
@@ -64,24 +61,16 @@
 	    <script src="{% static 'plugins/select2/select2.full.min.js' %}"></script>
 	    <script src="{% static 'plugins/input-mask/jquery.inputmask.js' %}"></script>
 	    <script src="{% static 'plugins/input-mask/jquery.inputmask.date.extensions.js' %}"></script>
-	    <script src="{% static 'plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js' %}"></script>
 	    <script src="{% static 'plugins/input-mask/jquery.inputmask.extensions.js' %}"></script>
 	    <script src="{% static 'plugins/switchery/switchery.min.js' %}"></script>
-	    <script src="{% static 'plugins/datepicker/bootstrap-datepicker.js' %}"></script>
 	    <script src="{% static 'plugins/pnotify/pnotify.min.js' %}"></script>
-	    <script src="{% static 'plugins/slimScroll/jquery.slimscroll.min.js' %}"></script>
-	    <script src="{% static 'plugins/fastclick/fastclick.js' %}"></script>
-	    <script src="{% static 'plugins/iCheck/icheck.min.js' %}"></script>
-	    <script src="{% static 'plugins/fileSaver.min.js' %}"></script>
 	    <script src="{% static 'javascripts/sha512.js' %}"></script>
 	    <script src="{% static 'javascripts/app.js' %}"></script>
-	    <script src="{% static 'plugins/blob.js' %}"></script>
-	    <script src="{% static 'plugins/fileSaver.min.js' %}"></script>
 	    <script src="{% static 'plugins/vue/vue.js' %}"></script>
 	    <script src="{% static 'javascripts/common.js' %}"></script>
 
 	    <script>
-	    	var generate_recovery_key_url = "{% url 'generate_recovery_key' %}";
+	    	var generate_recovery_key_url = "{% url 'gui:generate_recovery_key' %}";
 	      	String.prototype.format = function() {
 			  var args = arguments;
 			  return this.replace(/{(\d+)}/g, function(match, number) { 
@@ -112,7 +101,6 @@
 	        PNotify.prototype.options.styling = "fontawesome";
 
 	        function init_control(){
-	        	
 				var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
 
 				elems.forEach(function(html) {
@@ -120,44 +108,8 @@
 				});
 
 				$('.select2').select2();
-	        	
-				$('.date_picker').datepicker({
-					autoclose: true,
-					format: "yyyy-mm-dd"
-				});
 
 				$("[data-mask]").inputmask();
-				$(".textarea").wysihtml5();
-
-
-				$('#id_type_key').on('change', type_key);
-				$('#id_type_key').trigger('change');
-
-	          function type_key(){
-	            $('.machine').hide();
-	            $('.software').hide();
-	            $('.website').hide();
-
-	            var type_key = $('#id_type_key').val();
-
-	            switch(type_key){
-	              case "Software":
-	                $('.software').show();
-	                break;
-
-	              case "Hardware": 
-	                $('.machine').show();
-	                break;
-
-	              case "Website":
-	                $('.website').show();
-	                break;
-
-	              case "Other":
-	                break;
-	            }
-
-	          }
 	        }
 
 	        function notify(type, title, message, no_remove){

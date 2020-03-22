@@ -47,7 +47,7 @@ logger = logging.getLogger('auth')
 
 @login_required()
 def main(request):
-    return HttpResponseRedirect(reverse("workspace"))
+    return HttpResponseRedirect(reverse("gui:workspace"))
 
 
 def log_in(request):
@@ -59,13 +59,13 @@ def log_in(request):
 
         user = authenticate(username=email, password=password)
 
-        if user.is_locked:
-            return JsonResponse({
-                'status': False,
-                'error': _("Access Forbidden")
-            })
-
         if user:
+            if user.is_locked:
+                return JsonResponse({
+                    'status': False,
+                    'error': _("Access Forbidden")
+                })
+
             last_seen = user.last_login
             login(request, user)
 

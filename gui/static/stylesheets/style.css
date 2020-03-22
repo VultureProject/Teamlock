@@ -269,15 +269,18 @@ table.dataTable thead > tr > th{
 }
 
 #tree{
-	float:left;
-	width:250px;
+	width:100%;
 	background-color: #EEEEEE;
 	height: 100%;
 	margin-top: 10px;
-	overflow: scroll;
+	overflow-y: auto;
 }
 
 .dropdown-menu-key{
 	width: 600px;
 	padding: 10px;
+}
+
+.logo{
+	width: 160px;
 }
