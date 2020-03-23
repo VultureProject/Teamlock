@@ -237,7 +237,7 @@ body{
 }
 
 .tl-tree-content{
-	overflow: hidden;
+	overflow-x: auto;
 	padding: 5px;
 	height: 100%;
 }
