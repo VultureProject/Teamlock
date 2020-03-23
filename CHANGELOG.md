@@ -3,8 +3,8 @@
 ## Version 0.3
 --------------------------
 ### Fixed
+- [GUI] Fix scroll on key table
 - [GUI] Bug fix when copying a password after a search
-
 
 ## Version 0.2
 --------------------------
