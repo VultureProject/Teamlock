@@ -1,5 +1,11 @@
 # Teamlock
 
+## Version 0.4
+--------------------------
+### Changed
+- [GUI] Remove unused javascripts plugins
+- [GUI] Add favicon and logo
+
 ## Version 0.3
 --------------------------
 ### Fixed
