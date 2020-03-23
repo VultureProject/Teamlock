@@ -23,16 +23,11 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
-from api.views import auth as api_auth_view
-from api.views import workspace as api_workspace_view
-from django.conf.urls import url
-from django.urls import path
-from django.views.i18n import JavaScriptCatalog
-from django.conf.urls import include
+from django.http import JsonResponse
+from django.conf import settings
 
 
-urlpatterns = [
-    path("jsi18n/", JavaScriptCatalog.as_view(), name="javascript-catalog"),
-    path("", include(("gui.urls", "gui"), namespace="gui")),
-    path('api/', include(("api.urls", "api"), namespace="api"))
-]
+def version(request):
+    return JsonResponse({
+        "VERSION": settings.VERSION
+    })

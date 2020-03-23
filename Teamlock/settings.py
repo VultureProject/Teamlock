@@ -61,9 +61,11 @@ except ImportError:
     from Teamlock.secret_key import SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 LOG_LEVEL = "INFO"
-DEV_MODE = True
+DEV_MODE = False
+
+VERSION = 0.4
 
 ALLOWED_HOSTS = ["*"]
 
@@ -84,6 +86,7 @@ INSTALLED_APPS = [
     'gui',
 ]
 
+# Optional
 CRONJOBS = [
     ('0 1 * * *', 'gui.cron.backup.backup_workspaces', ["<backup_password>"])
 ]

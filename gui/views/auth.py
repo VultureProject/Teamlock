@@ -47,7 +47,7 @@ logger = logging.getLogger('auth')
 
 @login_required()
 def main(request):
-    return HttpResponseRedirect(reverse("workspace"))
+    return HttpResponseRedirect(reverse("gui:workspace"))
 
 
 def log_in(request):

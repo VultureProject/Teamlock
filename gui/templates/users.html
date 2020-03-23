@@ -1,5 +1,5 @@
 {% extends 'layout.html' %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block nav %}
 
@@ -14,10 +14,10 @@
   <div class="tl-tree">
       <div class="tl-tree-header">
         <div class="tl-tree-header">
-        <div class="tree-search">
-          <a href="/"><i class="fa fa-cloud">&nbsp;&nbsp;</i>Teamlock</a>
+          <div class="tree-search">
+            <a href="{% url 'gui:workspace' %}"><img src="{% static 'images/logos/logo_large.png' %}" class="logo"/></a>
+          </div>
         </div>
-      </div>
       </div>
       <div class="tl-tree-content">
           
@@ -127,19 +127,19 @@
 {% endblock %}
 
 {% block css_include %}
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.css"/>
+  <link rel="stylesheet" href="{% static 'plugins/datatables/datatables.min.css' %}"/>
 {% endblock %}
 
 {% block js_include %}
-  <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.15/datatables.min.js"></script>
-  <script src="/static/plugins/datatables/dataTables.bootstrap.js"></script>
+  <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+  <script src="{% static 'plugins/datatables/dataTables.bootstrap.js' %}"></script>
 {% endblock %}
 
 {% block jquery_code %}
 
   $('.btn-add').on('click', function(){
     $.post(
-      '/users/edit/',
+      '{% url 'gui:user_edit' %}',
       {'csrfmiddlewaretoken': getCookie('csrftoken')},
 
       function(response){
@@ -268,7 +268,7 @@
         e.stopPropagation();
 
         $.post(
-          '/users/workspace/',
+          '{% url "gui:get_users_workspaces" %}',
           {
             'csrfmiddlewaretoken': getCookie('csrftoken'),
             'user_id': aData['id']
@@ -302,7 +302,7 @@
             }).get().on('pnotify.confirm', function() {
 
               $.post(
-                '/users/delete/',
+                '{% url "gui:user_delete" %}',
                 {
                   'csrfmiddlewaretoken': getCookie('csrftoken'),
                   'user_id': aData['id']
@@ -339,10 +339,10 @@
         e.preventDefault();
         e.stopPropagation();
 
-        var url = "{% url 'user_lock' %}";
+        var url = "{% url 'gui:user_lock' %}";
         var text = gettext('Lock user ?')
         if ($(this).data('action') === "unlock"){
-          url = "{% url 'user_unlock' %}";
+          url = "{% url 'gui:user_unlock' %}";
           text = gettext('Unlock user ?')
         }
 
@@ -386,7 +386,7 @@
 
       $(nRow).on('click', function(){
         $.post(
-          '/users/edit/',
+          '{% url "gui:user_edit" %}',
           {
             'csrfmiddlewaretoken': getCookie('csrftoken'),
             'user_id': aData['id']

@@ -43,10 +43,7 @@ logger = logging.getLogger('django')
 
 @login_required()
 def profile(request, success=False, error=False):
-    form_user = UserForm(instance=request.user)
-
     return render(request, 'profile.html', {
-        'form_user': form_user,
         'success': success,
         'error': error
     })
