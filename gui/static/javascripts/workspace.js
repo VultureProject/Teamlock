@@ -411,9 +411,10 @@ workspace_vue = new Vue({
 		get_workspaces();
 	},
 
-	watch: {
-		search_workspace: function(s){
-			// $('#tree').jstree(true).search(s);
+	methods: {
+		search(){
+			let s = this.search_workspace;
+
 			if (s === ""){
 				var node = $('#tree').jstree('get_selected');
 				this.get_keys(node[0]);
@@ -438,10 +439,7 @@ workspace_vue = new Vue({
 						$("#keys").dataTable().fnAddData(key);
 				}
 			})
-		}
-	},
-
-	methods: {
+		},
 		date_format: function(data){
 			var m = new moment(data);
 			return m.format('DD/MM/YYYY HH:mm:ss');
@@ -952,7 +950,7 @@ keys_table = $('#keys').DataTable({
 
     		var data = {
 				key_id             : aData.id,
-				folder_id          : workspace_vue.folder,
+				folder_id          : aData.folder,
 				passphrase         : get_passphrase(),
 				workspace_id       : $('#workspaces-select').val(),
 				csrfmiddlewaretoken: getCookie('csrftoken'),
