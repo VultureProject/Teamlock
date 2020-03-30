@@ -71,10 +71,8 @@ def edit_users(request):
 @user_passes_test(lambda u: u.is_superuser)
 def save_users(request):
     user_id = request.GET.get('id')
-    is_superuser = False
     if user_id:
         user = User.objects.get(pk=user_id)
-        is_superuser = user.is_superuser
         form = UserForm(request.POST, instance=user)
     else:
         form = UserForm(request.POST)
@@ -92,7 +90,7 @@ def save_users(request):
         user.save()
 
         if not user_id:
-            configure_uri = settings.PUBLIC_URI + reverse('configure_account', args=(str(user.pk),))
+            configure_uri = settings.PUBLIC_URI + reverse('gui:configure_account', args=(str(user.pk),))
             status, error = registration(configure_uri, user.first_name, user.last_name, user.email)
 
             logger.info('User {} created'.format(user.email))
