@@ -38,8 +38,6 @@ from gui.models.workspace import Shared
 from gui.models.workspace import Workspace
 from teamlock_toolkit.crypto_utils import CryptoUtils
 
-from xml.dom import minidom
-
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
 logger = logging.getLogger('workspace')
@@ -365,7 +363,6 @@ class WorkspaceUtils(CryptoUtils):
             return False, error
 
         folders = json.loads(self.sym_decrypt(self.workspace.folders, sym_key))
-
         if not folder['id']:
             # Insert
             folder['id'] = self.id_generator()

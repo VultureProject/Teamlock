@@ -34,5 +34,6 @@ urlpatterns = [
     url(r'^workspace/$', api_workspace_view.get_workspaces),
     url(r'^workspace/tree$', api_workspace_view.get_tree_workspace),
     url(r'^workspace/keys$', api_workspace_view.get_keys),
+    url(r'^workspace/folder/add$', api_workspace_view.add_folder),
     url(r'^workspace/keys/add$', api_workspace_view.add_key)
 ]

@@ -24,13 +24,15 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 
+import json
+
 from api.decorators.api_auth import api_auth
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from gui.models.workspace import Workspace, Shared
-from teamlock_toolkit.workspace_utils import WorkspaceUtils
 from django.utils.translation import ugettext as _
-import json
+from django.views.decorators.csrf import csrf_exempt
+from gui.models.workspace import Shared
+from gui.models.workspace import Workspace
+from teamlock_toolkit.workspace_utils import WorkspaceUtils
 
 
 @api_auth()
@@ -117,6 +119,42 @@ def get_keys(request):
         }, status=500)
 
     return JsonResponse(status)
+
+
+@csrf_exempt
+@api_auth()
+def add_folder(request):
+    passphrase = request.headers['passphrase']
+
+    session_key = request.session['key']
+    workspace_id = request.POST.get('workspace_id')
+
+    if not workspace_id:
+        return JsonResponse({
+            'status': False,
+            'error': _("Please define a workspace ID")
+        }, status=400)
+
+    folder = {
+        "id": None,
+        "text": request.POST['text'],
+        "icon": "fa fa-folder",
+        "parent": request.POST['parent']
+    }
+
+    workspace_utils = WorkspaceUtils(
+        request.user, workspace_id=workspace_id, session_key=session_key)
+    status, error = workspace_utils.save_folder(folder, passphrase)
+
+    if not status:
+        return JsonResponse({
+            'status': False,
+            'error': error
+        })
+
+    return JsonResponse({
+        'status': True
+    }, status=201)
 
 
 @csrf_exempt

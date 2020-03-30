@@ -24,7 +24,6 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 from django.conf.urls import url
-from django.urls import path
 from gui.views import auth as auth_view
 from gui.views import folder as folder_view
 from gui.views import install as install_view
