@@ -43,8 +43,15 @@ logger = logging.getLogger('auth')
 
 @csrf_exempt
 def api_auth(request):
-    email = request.POST['email']
-    password = request.POST['password']
+    try:
+        email = request.POST['email']
+        password = request.POST['password']
+    except KeyError:
+        return JsonResponse({
+            'status': False,
+            'error': _("Please provide email & password to authenticate")
+        }, status=400)
+
     user = authenticate(username=email, password=password)
 
     if user:
