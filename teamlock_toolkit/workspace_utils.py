@@ -341,7 +341,7 @@ class WorkspaceUtils(CryptoUtils):
             if keys[i]['id'] == key_id:
                 for folder in folders:
                     if folder['id'] == folder_id:
-                        action = f"Retrive password for key <b>{keys[i]['name']}</b> in folder <b>{folder['text']}</b>"
+                        action = f"Retreive password for key <b>{keys[i]['name']}</b> in folder <b>{folder['text']}</b>"
                         History.objects.create(
                             user=self.user.email,
                             workspace=self.workspace.name,
