@@ -31,6 +31,7 @@ from gui.views import key as key_view
 from gui.views import profile as profile_view
 from gui.views import settings as settings_view
 from gui.views import user as user_view
+from gui.views import history as history_view
 from gui.views import workspace as workspace_view
 
 urlpatterns = [
@@ -38,6 +39,7 @@ urlpatterns = [
     url(r'^login/$', auth_view.log_in, name='log_in'),
     url(r'^logout/$', auth_view.log_out, name="log_out"),
     url(r'^recover/', auth_view.recover_passphrase, name="recover_passphrase"),
+    url(r'^change/', auth_view.change_password, name="change_password"),
 
     url(r'^install/', install_view.install, name="install"),
 
@@ -60,6 +62,7 @@ urlpatterns = [
     url(r'^profile/recovery_file', profile_view.generate_recovery_view, name="generate_recovery_key"),
 
     url(r'^settings/(?P<classe_name>[a-z]*)?$', settings_view.settings, name="settings"),
+    url(r'^history/?', history_view.history, name="history"),
 
     url(r'^sendmail/test$', settings_view.test_send_mail, name="test_send_mail"),
 

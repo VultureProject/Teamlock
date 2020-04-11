@@ -37,6 +37,7 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from gui.models.workspace import Shared
 from gui.models.workspace import Workspace
+from gui.models.history import History
 from teamlock_toolkit.crypto_utils import CryptoUtils
 from teamlock_toolkit.workspace_utils import WorkspaceUtils
 
@@ -232,6 +233,14 @@ def workspace_share_delete(request):
         })
 
     share.delete()
+
+    workspace = share.workspace
+    History.objects.create(
+        user=request.user.email,
+        workspace=workspace.name,
+        workspace_owner=workspace.owner,
+        action="Delete share for user {share.user.email}"
+    )
 
     return JsonResponse({
         'status': True

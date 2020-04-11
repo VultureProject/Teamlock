@@ -24,15 +24,17 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 import hashlib
+import json
 import logging.config
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
-from gui.forms.user import UserForm
 from gui.models.settings import SecuritySettings
+from gui.models.user import UserSession
 from gui.models.workspace import Shared
 from gui.models.workspace import Workspace
 from teamlock_toolkit.tools import update_password_toolkit
@@ -43,9 +45,34 @@ logger = logging.getLogger('django')
 
 @login_required()
 def profile(request, success=False, error=False):
-    return render(request, 'profile.html', {
-        'success': success,
-        'error': error
+    if not request.is_ajax():
+        return render(request, 'profile.html', {
+            'success': success,
+            'error': error
+        })
+
+    order_dir = {
+        'asc': "-",
+        'desc': ""
+    }
+
+    draw = request.GET.get('draw')
+    start = request.GET.get("start")
+    length = request.GET.get('length', 10)
+    columns = json.loads(request.GET['columns'])
+    order_0_dir = request.GET.get('order[0][dir]')
+    order_0_col = request.GET.get('order[0][column]')
+
+    order = f"{order_dir[order_0_dir]}{columns[int(order_0_col)]}"
+
+    nb_data = UserSession.objects.all().count()
+    data = [model_to_dict(f) for f in UserSession.objects.all().order_by(order)[int(start): int(length) + int(start)]]
+
+    return JsonResponse({
+        'draw': draw,
+        'recordsTotal': nb_data,
+        'recordsFiltered': nb_data,
+        'data': data
     })
 
 

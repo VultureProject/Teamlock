@@ -26,18 +26,17 @@ __doc__ = ''
 
 from django.http import HttpResponseRedirect, JsonResponse
 from gui.models.settings import GeneralSettings, SecuritySettings, MailSettings
-from gui.forms.settings import (GeneralSettingsForm,
-                                SecuritySettingsForm, MailSettingsForm)
+from gui.forms.settings import (GeneralSettingsForm, SecuritySettingsForm, MailSettingsForm)
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _
 from teamlock_toolkit.mail import send_mail_test
 from gui.models.workspace import Workspace
 from django.shortcuts import render
-from django.conf import settings
+from django.conf import settings as django_settings
 import logging
 
-logging.config.dictConfig(settings.LOG_SETTINGS)
+logging.config.dictConfig(django_settings.LOG_SETTINGS)
 logger = logging.getLogger('django')
 
 
@@ -82,12 +81,8 @@ def settings(request, classe_name=None):
             if general_form.is_valid():
                 general_form.save()
 
-    # connected_users = Session.objects.filter(
-    #     expire_date__gte=datetime.datetime.now()).count()
-
     return render(request, 'settings.html', {
         'nb_workspaces': Workspace.objects.count(),
-        # 'connected_users': connected_users,
         'security': security_form,
         'general': general_form,
         'mail': mail_form,

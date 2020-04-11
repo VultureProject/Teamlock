@@ -32,6 +32,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from teamlock_toolkit.crypto_utils import CryptoUtils
 from teamlock_toolkit.managers import UserManager
+from django.utils import timezone
 from uuid import uuid4
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
@@ -113,3 +114,11 @@ class TeamlockUser(AbstractBaseUser, PermissionsMixin):
                 'status': False,
                 'error': _('An error has occured')
             }
+
+
+class UserSession(models.Model):
+    user = models.ForeignKey(TeamlockUser, on_delete=models.CASCADE)
+    ip_address = models.GenericIPAddressField()
+    browser = models.CharField(max_length=255)
+    os = models.CharField(max_length=255)
+    date = models.DateTimeField(default=timezone.now)

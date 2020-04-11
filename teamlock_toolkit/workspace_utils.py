@@ -34,6 +34,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from django.utils.translation import ugettext as _
+from gui.models.history import History
 from gui.models.workspace import Shared
 from gui.models.workspace import Workspace
 from teamlock_toolkit.crypto_utils import CryptoUtils
@@ -262,14 +263,30 @@ class WorkspaceUtils(CryptoUtils):
             # insert
             key['id'] = self.id_generator()
             keys.append(key)
+            type_save = "Create"
         else:
             # update
+            type_save = "Update"
             for i in range(len(keys)):
                 if keys[i]['id'] == key['id']:
                     keys[i] = key
                     break
 
         self.save_change(keys, key['folder'], False, sym_key)
+
+        folders = json.loads(self.sym_decrypt(
+            self.workspace.folders, sym_key))
+
+        for folder in folders:
+            if folder['id'] == key['folder']:
+                History.objects.create(
+                    user=self.user.email,
+                    workspace=self.workspace.name,
+                    workspace_owner=self.workspace.owner,
+                    action=f"{type_save} key <b>{key['name']}</b> in folder <b>{folder['text']}</b>"
+                )
+                break
+
         del sym_key
         return True, key
 
@@ -315,10 +332,24 @@ class WorkspaceUtils(CryptoUtils):
 
         keys = json.loads(self.sym_decrypt(
             self.workspace.keys[folder_id], sym_key))
+        folders = json.loads(
+            self.sym_decrypt(self.workspace.folders, sym_key))
+
         del sym_key
 
         for i in range(len(keys)):
             if keys[i]['id'] == key_id:
+                for folder in folders:
+                    if folder['id'] == folder_id:
+                        action = f"Retrive password for key <b>{keys[i]['name']}</b> in folder <b>{folder['text']}</b>"
+                        History.objects.create(
+                            user=self.user.email,
+                            workspace=self.workspace.name,
+                            workspace_owner=self.workspace.owner,
+                            action=action
+                        )
+                        break
+
                 return True, keys[i]['password']
 
         return False, _('Key not found')
@@ -336,6 +367,8 @@ class WorkspaceUtils(CryptoUtils):
 
         keys = json.loads(self.sym_decrypt(
             self.workspace.keys[folder_id], sym_key))
+        folders = json.loads(
+            self.sym_decrypt(self.workspace.folders, sym_key))
 
         tmp_key = None
         for i in range(len(keys)):
@@ -346,6 +379,16 @@ class WorkspaceUtils(CryptoUtils):
 
         if tmp_key is None:
             return False, _('Key not found')
+
+        for folder in folders:
+            if folder['id'] == folder_id:
+                History.objects.create(
+                    user=self.user.email,
+                    workspace=self.workspace.name,
+                    workspace_owner=self.workspace.owner,
+                    action=f"Delete key <b>{tmp_key['name']}</b> in folder <b>{folder['text']}</b>"
+                )
+                break
 
         self.save_change(keys, folder_id, False, sym_key)
         del sym_key
@@ -367,11 +410,24 @@ class WorkspaceUtils(CryptoUtils):
             # Insert
             folder['id'] = self.id_generator()
             folders.append(folder)
+
+            History.objects.create(
+                user=self.user.email,
+                workspace=self.workspace.name,
+                workspace_owner=self.workspace.owner,
+                action=f"Create folder {folder['text']}"
+            )
         else:
             # Update
             for i in range(len(folders)):
                 if folders[i]['id'] == folder['id']:
                     folders[i] = folder
+                    History.objects.create(
+                        user=self.user.email,
+                        workspace=self.workspace.name,
+                        workspace_owner=self.workspace.owner,
+                        action=f"Update folder {folder['text']}"
+                    )
                     break
 
         self.save_change(None, False, folders, sym_key)
@@ -411,25 +467,34 @@ class WorkspaceUtils(CryptoUtils):
 
         folders = json.loads(self.sym_decrypt(self.workspace.folders, sym_key))
 
-        try:
-            del self.workspace.keys[folder_id]
-        except KeyError:
-            pass
-
         new_folders = []
         folders_to_del = []
+        folder_deleted_name = []
+
         for folder in folders:
             if folder['id'] == folder_id:
                 folders_to_del.append(folder['id'])
+                folder_deleted_name.append(folder['text'])
             elif folder['parent'] == folder_id:
                 folders_to_del.append(folder['id'])
+                folder_deleted_name.append(folder['text'])
             else:
                 new_folders.append(folder)
 
         keys = {}
+        nb_deleted_keys = 0
         for x, y in self.workspace.keys.items():
             if x not in folders_to_del:
                 keys[x] = y
+            else:
+                nb_deleted_keys += len(json.loads(self.sym_decrypt(y, sym_key)))
+
+        History.objects.create(
+            user=self.user.email,
+            workspace=self.workspace.name,
+            workspace_owner=self.workspace.owner,
+            action=f"Delete folder <b>{folder_deleted_name}</b> with <b>{nb_deleted_keys}</b> keys",
+        )
 
         self.save_change(keys, False, new_folders, sym_key)
         del sym_key
@@ -453,8 +518,10 @@ class WorkspaceUtils(CryptoUtils):
                     'error': error
                 }
 
+        users_email = []
         for user_id in users:
             user = User.objects.get(pk=user_id)
+            users_email.append(user.email)
 
             try:
                 sym_key = sym_key.decode('utf-8')
@@ -474,6 +541,19 @@ class WorkspaceUtils(CryptoUtils):
                 pass
 
             del encrypted_sym_key
+
+        mapping_right = {
+            1: 'Read',
+            2: "Read & Write"
+        }
+
+        action = f"Shared workspace with user(s) <b>{', '.join(users_email)}</b> with <b>{mapping_right[rights]}</b> rights"
+        History.objects.create(
+            user=self.user.email,
+            workspace=self.workspace.name,
+            workspace_owner=self.workspace.owner,
+            action=action
+        )
 
         del sym_key
         return {
@@ -621,53 +701,3 @@ class WorkspaceUtils(CryptoUtils):
                 folders.append(tmp_folder)
 
         return True, folders
-
-        top = ET.Element('KeePassFile')
-        comment = ET.Comment("Generated by Teamlock")
-        top.append(comment)
-
-        root = ET.SubElement(top, "Root")
-        group = ET.SubElement(root, "Group")
-
-        name_racine = ET.SubElement(group, "Name")
-        name_racine.text = "Racine"
-
-        def add_keys(parent, keys):
-            def add_string(elem, key, value):
-                string = ET.SubElement(elem, "String")
-                k = ET.SubElement(string, "Key")
-                k.text = key
-
-                v = ET.SubElement(string, "Value")
-                v.text = value
-
-            for key in keys:
-                entry = ET.SubElement(parent, "Entry")
-                add_string(entry, "Title", key['name'])
-                add_string(entry, "UserName", key['login'])
-                add_string(entry, "Password", key['password'])
-                add_string(entry, "URL", key['uri'])
-                add_string(entry, "Notes", key['informations'])
-
-        def add_childs(parent, childs):
-            for child in childs:
-                group = ET.SubElement(parent, "Group")
-                group.text = child['name']
-
-                if len(child['childs']) > 0:
-                    subgroup = ET.SubElement(group, "Group")
-                    add_childs(subgroup, child['childs'])
-                    add_keys(subgroup, child['keys'])
-
-        for folder in folders:
-            group_racine = ET.SubElement(group, "Group")
-            name_folder = ET.SubElement(group_racine, "Name")
-            name_folder.text = folder['name']
-            add_keys(group_racine, folder['keys'])
-
-            if len(folder["childs"]) > 0:
-                child_group = ET.SubElement(group, "Group")
-                add_childs(child_group, folder['childs'])
-
-        with open(f'/Users/olive/Downloads/{self.workspace.pk}.xml', 'w') as f:
-            f.write(top)

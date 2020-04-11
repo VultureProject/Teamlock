@@ -24,20 +24,12 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 from django.db import models
-import datetime
+from django.utils import timezone
 
 
-class MailSettings(models.Model):
-    host = models.CharField(max_length=255, default="")
-
-
-class SecuritySettings(models.Model):
-    password_change = models.IntegerField(default=100)
-    length_password = models.IntegerField(default=8)
-    key_size = models.IntegerField(default=4096)
-
-
-class GeneralSettings(models.Model):
-    company_name = models.CharField(max_length=255)
-    install_year = models.IntegerField(default=datetime.datetime.now().year)
-    last_version = models.FloatField(default=0.6)
+class History(models.Model):
+    date = models.DateTimeField(default=timezone.now)
+    user = models.CharField(max_length=255)
+    workspace = models.CharField(max_length=255)
+    workspace_owner = models.CharField(max_length=255)
+    action = models.TextField()

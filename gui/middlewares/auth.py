@@ -23,12 +23,14 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
-from gui.models.settings import SecuritySettings
 import datetime
+
+from gui.models.settings import SecuritySettings
 
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.urls import resolve
+from django.urls import reverse
 
 
 def AuthenticationMiddleware(get_response):
@@ -55,21 +57,15 @@ def AuthenticationMiddleware(get_response):
         try:
             settings_teamlock = SecuritySettings.objects.get()
         except SecuritySettings.DoesNotExist:
-            return HttpResponseRedirect('/install')
+            return HttpResponseRedirect(reverse('gui:install'))
             settings_teamlock = SecuritySettings(password_change=100)
 
         try:
-            date_last_change = datetime.datetime(
-                user.last_change_passwd.year,
-                user.last_change_passwd.month,
-                user.last_change_passwd.day
-            )
-
-            if ((datetime.datetime.now() -
-                 date_last_change).days >= settings_teamlock.password_change):
-                return HttpResponseRedirect('/changepassword')
+            delta = datetime.date.today() - user.last_change_passwd
+            if delta.days > settings_teamlock.password_change:
+                return HttpResponseRedirect(reverse('gui:change_password'))
         except AttributeError:
-            return HttpResponseRedirect('/changepassword')
+            return HttpResponseRedirect(reverse('gui:change_password'))
 
         return get_response(request)
 

@@ -243,7 +243,6 @@ body{
 
 .tl-top-icon{
 	float: right;
-	width: 300px;
 	text-align: right;
 	padding: 10px;
 	color: #fff !important;
@@ -434,3 +433,6 @@ ul.jqtree-tree{
     text-decoration: inherit;
 }
 
+.text-warning{
+	color: orange !important;
+}

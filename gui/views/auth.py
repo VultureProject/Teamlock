@@ -23,26 +23,42 @@ __maintainer__ = "Teamlock Project"
 __email__ = "contact@teamlock.io"
 __doc__ = ''
 
-from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
-from django.contrib.auth import authenticate, login, logout
-from teamlock_toolkit.workspace_utils import WorkspaceUtils
-from teamlock_toolkit.tools import update_password_toolkit
-from django.contrib.auth.decorators import login_required
-from teamlock_toolkit.crypto_utils import CryptoUtils
-from django.utils.translation import ugettext as _
-from gui.models.workspace import Workspace, Shared
-from gui.models.settings import SecuritySettings
-from django.contrib.auth import get_user_model
-from django.shortcuts import render
-from django.conf import settings
-from django.urls import reverse
-import datetime
-import logging
-import hashlib
 import base64
+import datetime
+import hashlib
+import logging
+
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.http import HttpResponseRedirect
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.urls import reverse
+from django.utils.translation import ugettext as _
+from gui.models.settings import SecuritySettings
+from gui.models.user import UserSession
+from gui.models.workspace import Shared
+from gui.models.workspace import Workspace
+from teamlock_toolkit.crypto_utils import CryptoUtils
+from teamlock_toolkit.tools import update_password_toolkit
+from teamlock_toolkit.workspace_utils import WorkspaceUtils
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
 logger = logging.getLogger('auth')
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 @login_required()
@@ -89,6 +105,13 @@ def log_in(request):
             logger.info("User {} successfully authenticated".format(
                 user.email
             ))
+
+            UserSession.objects.create(
+                user=user,
+                ip_address=get_client_ip(request),
+                browser=request.user_agent.browser.family,
+                os=request.user_agent.os.family
+            )
 
             return JsonResponse({
                 'status': True,
@@ -268,4 +291,89 @@ def recover_passphrase(request):
 
     return render(request, 'logon.html', {
         'message': _("Password successfully updated")
+    })
+
+
+@login_required
+def change_password(request):
+    if request.method == "GET":
+        last_change = request.user.last_change_passwd
+
+        delta = datetime.date.today() - last_change
+        settings_teamlock = SecuritySettings.objects.get()
+
+        if delta.days < settings_teamlock.password_change:
+            return HttpResponseRedirect(reverse('gui:workspace'))
+
+        return render(request, 'change_password.html', {
+            "last_change": last_change.strftime('%d/%m/%Y')
+        })
+
+    old_password = request.POST['old_password']
+    new_password = request.POST['new_password']
+    confirm_password = request.POST['confirm_password']
+
+    if not request.user.check_password(old_password):
+        return render(request, 'change_password.html', {
+            'error': _('Invalid password')
+        })
+
+    if new_password != confirm_password:
+        return render(request, 'change_password.html', {
+            'error': _('Passwords mismatch')
+        })
+
+    if old_password == new_password:
+        error = _("You must choose a new password")
+        return render(request, 'change_password.html', {
+            'error': error
+        })
+
+    try:
+        settings = SecuritySettings.objects.get()
+    except SecuritySettings.DoesNotExist:
+        settings = SecuritySettings(length_password=8)
+
+    if len(new_password) < settings.length_password:
+        error = "The password must be at least {} characters long.".format(
+            settings.length_password)
+        return render(request, 'change_password.html', {
+            'error': error
+        })
+
+    # At least one letter and one non-letter
+    first_isalpha = new_password[0].isalpha()
+    if all(c.isalpha() == first_isalpha for c in new_password):
+        error = _("The password must contain at least one letter and at least \
+                     one digit or punctuation character.")
+        return render(request, 'change_password.html', {
+            'error': error
+        })
+
+    workspaces = Workspace.objects.filter(owner=request.user)
+    shares = Shared.objects.filter(user=request.user)
+
+    passphrase = hashlib.sha512(
+        old_password.encode("utf-8")).hexdigest()
+    new_passphrase = hashlib.sha512(
+        new_password.encode('utf-8')).hexdigest()
+
+    try:
+        update_password_toolkit(
+            request.user,
+            workspaces,
+            shares,
+            passphrase,
+            new_passphrase,
+            new_password
+        )
+
+    except Exception as e:
+        return render(request, 'change_password.html', {
+            'error': str(e)
+        })
+
+    logout(request)
+    return render(request, 'change_password.html', {
+        'success': _("Password updated")
     })
