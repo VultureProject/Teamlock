@@ -24,6 +24,7 @@ __email__ = "contact@teamlock.io"
 __doc__ = ''
 
 import os
+from Teamlock.custom_settings import *
 
 """
 Django settings for Teamlock project.
@@ -65,12 +66,10 @@ DEBUG = False
 LOG_LEVEL = "INFO"
 DEV_MODE = False
 
-VERSION = 0.4
+VERSION = 0.6
 
 ALLOWED_HOSTS = ["*"]
 
-REDIS_HOST = "<REDIS_HOST>"
-REDIS_PORT = 6379
 
 # Application definition
 
@@ -83,12 +82,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     'django_crontab',
-    'gui',
+    'django_user_agents',
+    'api',
+    'gui'
 ]
 
-# Optional
+# WIP
 CRONJOBS = [
-    ('0 1 * * *', 'gui.cron.backup.backup_workspaces', ["<backup_password>"])
+    # ('0 1 * * *', 'gui.cron.backup.backup_workspaces', ["<backup_password>"]), # not ready yet
+    ('0 1 * * *', 'gui.cron.check_version.checkVersion'),
+    ('0 1 * * *', 'gui.cron.empty_session.emptySession'),
 ]
 
 MIDDLEWARE = [
@@ -99,8 +102,21 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
     'gui.middlewares.auth.AuthenticationMiddleware',
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}',
+        'KEY_PREFIX': 'teamlock_ua'
+    }
+}
+
+# Name of cache backend to cache user agents. If it not specified default
+# cache alias will be used. Set to `None` to disable caching.
+USER_AGENTS_CACHE = 'default'
 
 ROOT_URLCONF = 'Teamlock.urls'
 
@@ -115,6 +131,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'gui.context_processors.context'
             ],
         },
     },
@@ -125,17 +142,6 @@ WSGI_APPLICATION = 'Teamlock.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '<DB_NAME>',
-        'HOST': '<DB_IP>',
-        'PORT': 5432,
-        'USER': '<DB_USER>',
-        'PASSWORD': '<DB_PASSWORD>'
-    }
-}
 
 AUTHENTICATION_BACKENDS = (
     'teamlock_toolkit.auth.AuthenticationBackend',
@@ -237,7 +243,3 @@ SESSION_REDIS = {
 }
 
 STATIC_URL = '/static/'
-
-PUBLIC_URI = "<PUBLIC_URI>"
-
-JWT_EXPIRATION = 300

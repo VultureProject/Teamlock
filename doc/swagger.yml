@@ -147,40 +147,40 @@ paths:
     post:
       tags:
         - "Workspace"
-        summary: "Add a folder to the workspace"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "header"
-            name: Authorization
-            type: "string"
-          - in: "header"
-            name: Passphrase
-            type: "string"
-          - in: "body"
-            name: "body"
-            description: "Authentication information"
-            required: true
-            schema:
-              $ref: "#/definitions/folder"
-        responses:
-          "201":
-            description: "Folder successfully created"
-            schema: {
-              "$ref": "#/definitions/success_create_folder"
-            }
-          "400":
-            description: "Bad request"
-            schema: {
-              "$ref": "#/definitions/bad_request"
-            }
-          "500":
-            description: "Error when creating a folder"
-            schema: {
-              "$ref": "#/definitions/error"
-            }
+      summary: "Add a folder to the workspace"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "header"
+          name: Authorization
+          type: "string"
+        - in: "header"
+          name: Passphrase
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Authentication information"
+          required: true
+          schema:
+            $ref: "#/definitions/folder"
+      responses:
+        "201":
+          description: "Folder successfully created"
+          schema: {
+            "$ref": "#/definitions/success_create_folder"
+          }
+        "400":
+          description: "Bad request"
+          schema: {
+            "$ref": "#/definitions/bad_request"
+          }
+        "500":
+          description: "Error when creating a folder"
+          schema: {
+            "$ref": "#/definitions/error"
+          }
   /workspace/keys/add:
     post:
       tags:

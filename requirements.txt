@@ -1,6 +1,9 @@
 django
+django-redis
 django-redis-sessions==0.6.1
 django-crontab
 django-extensions
+django-user-agents
 pycrypto
 psycopg2
+requests

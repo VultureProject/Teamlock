@@ -1,5 +1,19 @@
 # Teamlock
 
+## Version 0.6
+--------------------------
+### Added
+- Save and retreive users sessions
+- Check for new version
+- Create folder over API
+
+### Changed
+- Move custom settings to a different file
+
+### Fixed
+- Fix user creation
+- Fix user configuration template
+
 ## Version 0.5
 --------------------------
 ### Fixed
