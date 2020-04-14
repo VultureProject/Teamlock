@@ -35,15 +35,24 @@
 								<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Workspaces" id="link_workspaces"><a href="{% url 'gui:workspace' %}"><i class="fa fa-dashboard"></i></a></li>
 								{% if request.user.is_superuser %}
 									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Users" id="link_users"><a href="{% url 'gui:users' %}"><i class="fa fa-user"></i></a></li>
+									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="History" id="link_history"><a href="{% url 'gui:history' %}"><i class="fa fa-history"></i></a></li>
 									<li class="tl-icon-nav" data-toggle="tooltip" data-placement="bottom" title="Settings" id="link_settings"><a href="{% url 'gui:settings' %}"><i class="fa fa-cogs"></i></a></li>
 								{% endif %}
 							</ul>
 
-							<a class="dropdown-toggle tl-top-icon" href="#" id="menu1" data-toggle="dropdown">{{ request.user.email }}&nbsp;&nbsp;&nbsp;<span class="caret"></span></a>
-							<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="menu1">
-						      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'gui:profile' %}"><i class="fa fa-user">&nbsp;&nbsp;</i>{% trans "Profile" %}</a></li>
-						      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'gui:log_out' %}"><i class="fa fa-sign-out">&nbsp;&nbsp;</i>{% trans "Logout" %}</a></li>
-						    </ul>
+							<div>
+								<a class="dropdown-toggle tl-top-icon" href="#" id="menu1" data-toggle="dropdown">{{ request.user.email }}&nbsp;&nbsp;&nbsp;<span class="caret"></span></a>
+								<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="menu1">
+							      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'gui:profile' %}"><i class="fa fa-user">&nbsp;&nbsp;</i>{% trans "Profile" %}</a></li>
+							      <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'gui:log_out' %}"><i class="fa fa-sign-out">&nbsp;&nbsp;</i>{% trans "Logout" %}</a></li>
+							    </ul>
+							</div>
+
+							{% if request.user.is_superuser and CURRENT_VERSION < LAST_VERSION %}
+							<div>
+								<a class="dropdown-toggle tl-top-icon text-warning" href="https://github.com/VultureProject/Teamlock/releases" target="_blank" id="menu-update">{% trans "Update available" %}&nbsp;&nbsp;&nbsp;<i class="fa fa-exclamation-triangle"></i></a>
+							</div>
+							{% endif %}
 						</div>
 					</div>
 
