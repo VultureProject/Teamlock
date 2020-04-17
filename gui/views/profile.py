@@ -65,8 +65,9 @@ def profile(request, success=False, error=False):
 
     order = f"{order_dir[order_0_dir]}{columns[int(order_0_col)]}"
 
-    nb_data = UserSession.objects.all().count()
-    data = [model_to_dict(f) for f in UserSession.objects.all().order_by(order)[int(start): int(length) + int(start)]]
+    nb_data = UserSession.objects.filter(user=request.user).count()
+    data = [model_to_dict(f) for f in UserSession.objects.filter(
+        user=request.user).order_by(order)[int(start): int(length) + int(start)]]
 
     return JsonResponse({
         'draw': draw,
