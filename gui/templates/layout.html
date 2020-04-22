@@ -74,6 +74,7 @@
 	    <script src="{% static 'plugins/switchery/switchery.min.js' %}"></script>
 	    <script src="{% static 'plugins/pnotify/pnotify.min.js' %}"></script>
 	    <script src="{% static 'javascripts/sha512.js' %}"></script>
+	    <script src="{% static 'plugins/moment.js' %}"></script>
 	    <script src="{% static 'javascripts/app.js' %}"></script>
 	    <script src="{% static 'plugins/vue/vue.js' %}"></script>
 	    <script src="{% static 'javascripts/common.js' %}"></script>
@@ -153,8 +154,9 @@
 
 			$(function(){
 		        $('.select2').select2();
-		        {% block jquery_code %}{% endblock %}
 			})
+
+	        {% block jquery_code %}{% endblock %}
 	    </script>
 
 	    {% block js_include %}{% endblock %}

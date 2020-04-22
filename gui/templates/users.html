@@ -403,13 +403,13 @@
           }
         )
       })
-
     }
   });
 
-  $('#form-search').on('submit', function(){
+  $('#form-search').on('submit', function(e){
+    e.preventDefault();
     var table = $('#users').dataTable();
-    table.fnFilter($('#navbar-search-input').val());
+    table.fnFilter($('#search-input').val());
   })
 
 {% endblock %}

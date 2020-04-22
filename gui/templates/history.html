@@ -21,63 +21,74 @@
       </div>
       <div class="tl-tree-content">
         <div class="tree-search">
-          <div class="info-box">
-            <div class="info-box-icon">
-                <i class="fa fa-key"></i>
-            </div>
-            <div class="info-box-content">
-              <span class="info-box-text">{% trans "Last password change" %}</span> 
-              <span class="info-box-number">{{ request.user.last_change_passwd }}</span>
-            </div>
+          <h3>{% trans "Filters" %}</h3>
+          <div class="form-group">
+            <label>{% trans "Period" %}:</label>
+            <button class="btn btn-block btn-default btn-flat btn-block" id="reportrange_history" type="button"></button>
           </div>
-
-          <a href="#" id="generate_recovery_key" class="link_download_recovery">
-            <div class="info-box">
-              <div class="info-box-icon">
-                  <i class="fa fa-download"></i>
-              </div>
-              <div class="info-box-content">
-                <span class="info-box-text">{% trans "Download recovery key" %}</span> 
-                <span class="info-box-number">
-                  {% trans "Download" %}
-                </span>
-              </div>
-            </div>
-          </a>
+          <div class="form-group">
+            <label>{% trans "User" %}:</label>
+            <select class="form-control select2 reload" multiple="multiple" id="users">
+              <option value="">----------</option>
+              {% for user in users_list %}
+                <option value="{{ user.user }}">{{ user.user }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>{% trans "Workspace" %}:</label>
+            <select class="form-control select2 reload" multiple="multiple" id="workspaces">
+              <option value="">----------</option>
+              {% for workspace in workspaces_list %}
+                <option value="{{ workspace.workspace }}">{{ workspace.workspace }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
       </div>
     </div>
 {% endblock %}
 
 {% block content %} 
-  
-  <br/>
-  <div class="col-md-12">
-    <div class="box box-primary">
-      <div class="box-header with-border">
-        <h3 class="box-title">{% trans "History" %}</h3>
-      </div>
-      <div class="box-body">
-        <div class="row">
-          <div class="col-md-12">
-            <table class="table" id="table-history"></table>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="tl-content-workspace">
+    <table class="table" id="table-history"></table>
   </div>
 
 {% endblock %}
 
 {% block css_include %}
   <link rel="stylesheet" href="{% static 'plugins/datatables/datatables.min.css' %}"/>
+  <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}"/>
 {% endblock %}
 
 {% block js_include %}
   <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
-  <script src="{% static 'plugins/moment.js' %}"></script>
+  <script src="{% static 'plugins/daterangepicker/daterangepicker.min.js' %}"></script>
   <script src="{% static 'javascripts/history.js' %}"></script>
 {% endblock %}
 
 {% block jquery_code %}
+
+  var custom_label = {% blocktrans %} "Custom" {% endblocktrans %}
+
+  var custom_label = gettext("Custom");
+  var to_label = gettext("to");
+  var from_label = gettext("From");
+  var cancel_label = gettext("Cancel");
+  var apply_label = gettext("Apply");
+  var daysOfWeek = [gettext("Su"), gettext("Mo"), gettext("Tu"), gettext("We"), gettext("Th"), gettext("Fr"), gettext("Sa")]
+
+  var monthNames = [gettext("January"), gettext("February"), gettext("March"), gettext("April"), gettext("May"), gettext("June"), gettext("July"), gettext("August"), gettext("September"), gettext("October"), gettext("November"), gettext("December")];
+
+  var ranges = {
+      {% blocktrans %} 'Today' {% endblocktrans %}: [moment().startOf('day'), moment().endOf('day')],
+      {% blocktrans %} 'Yesterday' {% endblocktrans %}: [moment().subtract(1,'days').startOf('day'), moment().subtract(1,'days').endOf('day')],
+      {% blocktrans %} 'This week' {% endblocktrans %}: [moment().startOf('week'), moment().endOf('week')],
+      {% blocktrans %} 'Last 7 days' {% endblocktrans %}: [moment().subtract(6, 'days').startOf('day'), moment().endOf('day')],
+      {% blocktrans %} 'Last 30 days' {% endblocktrans %}:  [moment().subtract(29, 'days'), moment().endOf('day')],
+      {% blocktrans %} 'This month' {% endblocktrans %}: [moment().startOf('month'), moment().endOf('month')],
+      {% blocktrans %} 'Last month' {% endblocktrans %}: [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+      {% blocktrans %} 'This year' {% endblocktrans %}: [moment().startOf('year'), moment().endOf('year')],
+      {% blocktrans %} 'Last year' {% endblocktrans %}: [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')]
+  }
 {% endblock %}

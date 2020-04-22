@@ -72,7 +72,7 @@ urlpatterns = [
     url(r'^workspace/search/$', workspace_view.workspace_search),
     url(r'^workspace/tree/$', workspace_view.workspace_tree),
     url(r'^workspace/keys/$', workspace_view.workspace_keys),
-    url(r'^workspace/backup/$', workspace_view.workspace_backup),
+    # url(r'^workspace/backup/$', workspace_view.workspace_backup),
     url(r'^workspace/delete/$', workspace_view.workspace_delete),
     url(r'^workspace/share/$', workspace_view.workspace_share),
     url(r'^workspace/share/get/$', workspace_view.workspace_share_get),
