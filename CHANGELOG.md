@@ -1,5 +1,11 @@
 # Teamlock
 
+## Version 0.7
+--------------------------
+### Added
+- Filters on history view
+- Remove workspace backup from webUI
+
 ## Version 0.6
 --------------------------
 ### Added
