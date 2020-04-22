@@ -147,7 +147,7 @@ class WorkspaceUtils(CryptoUtils):
 
         # Backup user will access the Workspace
         self.workspace = workspace
-        self.share_workspace(False, [User.objects.get(email="backup@teamlock.io").pk], [], 3, sym_key)
+        self.share_workspace(False, [User.objects.get(email="backup@teamlock.io").pk], [], 3, sym_key, history=False)
 
         return {
             'status': True,
@@ -500,7 +500,7 @@ class WorkspaceUtils(CryptoUtils):
         del sym_key
         return True, None
 
-    def share_workspace(self, passphrase, users, teams, rights, sym_key=False):
+    def share_workspace(self, passphrase, users, teams, rights, sym_key=False, history=True):
         if self.rights < 2:
             return {
                 'status': False,
@@ -547,13 +547,14 @@ class WorkspaceUtils(CryptoUtils):
             2: "Read & Write"
         }
 
-        action = f"Shared workspace with user(s) <b>{', '.join(users_email)}</b> with <b>{mapping_right[rights]}</b> rights"
-        History.objects.create(
-            user=self.user.email,
-            workspace=self.workspace.name,
-            workspace_owner=self.workspace.owner,
-            action=action
-        )
+        if history:
+            action = f"Shared workspace with user(s) <b>{', '.join(users_email)}</b> with <b>{mapping_right[rights]}</b> rights"
+            History.objects.create(
+                user=self.user.email,
+                workspace=self.workspace.name,
+                workspace_owner=self.workspace.owner,
+                action=action
+            )
 
         del sym_key
         return {

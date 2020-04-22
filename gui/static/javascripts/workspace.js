@@ -531,27 +531,27 @@ workspace_vue = new Vue({
 			$('#modal-add-folder').modal('show');
 		},
 
-		backup_workspace: function(){
-			$.post(
-				'/workspace/backup/',
-				{
-					csrfmiddlewaretoken: getCookie('csrftoken'),
-					workspace_id: $('#workspaces-select').val(),
-					passphrase: get_passphrase()
-				},
+		// backup_workspace: function(){
+		// 	$.post(
+		// 		'/workspace/backup/',
+		// 		{
+		// 			csrfmiddlewaretoken: getCookie('csrftoken'),
+		// 			workspace_id: $('#workspaces-select').val(),
+		// 			passphrase: get_passphrase()
+		// 		},
 
-				function(response){
-					if (!response.status){
-						notify('error', gettext('Error'), response.error);
-						return;
-					}
+		// 		function(response){
+		// 			if (!response.status){
+		// 				notify('error', gettext('Error'), response.error);
+		// 				return;
+		// 			}
 
-					var filename = "backup_workspace_" + $('#workspaces-select').val() + ".json"
-					var blob = new Blob([response.backup], {type: "application/json;charset=utf-8"});
-					saveAs(blob, filename);
-				}
-			)
-		},
+		// 			var filename = "backup_workspace_" + $('#workspaces-select').val() + ".json"
+		// 			var blob = new Blob([response.backup], {type: "application/json;charset=utf-8"});
+		// 			saveAs(blob, filename);
+		// 		}
+		// 	)
+		// },
 
 		delete_workspace: function(){
 

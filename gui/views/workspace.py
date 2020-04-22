@@ -289,24 +289,24 @@ def workspace_import_xml_keepass(request):
     return JsonResponse({'status': True})
 
 
-@login_required
-def workspace_backup(request):
-    passphrase = request.POST.get('passphrase')
-    workspace_id = request.POST['workspace_id']
+# @login_required
+# def workspace_backup(request):
+#     passphrase = request.POST.get('passphrase')
+#     workspace_id = request.POST['workspace_id']
 
-    workspace_utils = WorkspaceUtils(
-        request.user, workspace_id, session_key=request.session.get('key')
-    )
+#     workspace_utils = WorkspaceUtils(
+#         request.user, workspace_id, session_key=request.session.get('key')
+#     )
 
-    status, file = workspace_utils.backup(passphrase, from_ui=True)
+#     status, file = workspace_utils.backup(passphrase, from_ui=True)
 
-    if not status:
-        return JsonResponse({
-            'status': False,
-            'error': file
-        })
+#     if not status:
+#         return JsonResponse({
+#             'status': False,
+#             'error': file
+#         })
 
-    return JsonResponse({
-        'status': True,
-        'backup': json.dumps(file, indent=4)
-    })
+#     return JsonResponse({
+#         'status': True,
+#         'backup': json.dumps(file, indent=4)
+#     })
