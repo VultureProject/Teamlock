@@ -389,7 +389,3 @@ definitions:
         example: false
       error: 
         type: "string"
-
-externalDocs:
-  description: "Find out more about Swagger"
-  url: "http://swagger.io"
