@@ -47,7 +47,7 @@ $(function(){
 
         } else {
           $('#edit-modal-user').modal('hide');
-          notify('success', 'Success', '{% trans "User has been saved" %}');
+          notify('success', 'Success', gettext("User has been saved"));
           var users_table = $('#users').dataTable();
           if (response.user_id){
             var nodes = users_table.fnGetNodes();

@@ -60,11 +60,11 @@ def history(request):
     users = json.loads(request.GET['users'])
 
     start_date = datetime.datetime.strptime(
-        request.GET['startDate'], "%Y-%m-%dT%H:%M:%S%z"
+        request.GET['startDate'].split('+')[0], "%Y-%m-%dT%H:%M:%S"
     )
 
     end_date = datetime.datetime.strptime(
-        request.GET['endDate'], "%Y-%m-%dT%H:%M:%S%z"
+        request.GET['endDate'].split('+')[0], "%Y-%m-%dT%H:%M:%S"
     )
 
     query = Q(date__gte=start_date) & Q(date__lte=end_date)
