@@ -40,9 +40,12 @@ function get_workspaces(){
 	$.post('/workspace/', {
 		csrfmiddlewaretoken: getCookie('csrftoken')
 	}, function(response){
+		workspace_vue.favorite_workspace = response.favorite_workspace
 		$('#workspaces-select').select2({
 			data: response.workspaces
 		});
+
+		$('#workspaces-select').val(workspace_vue.favorite_workspace)
 
 		$('#workspaces-select').trigger('change');
 	})
@@ -90,25 +93,15 @@ $('#form-save-key').on('submit', function(e){
 		ipv4        : workspace_vue.key.ipv4,
 		ipv6        : workspace_vue.key.ipv6,
 		informations: workspace_vue.key.informations,
-		folder      : workspace_vue.folder
+		folder      : workspace_vue.key.folder,
+		workspace_id       : $('#workspaces-select').val(),
+		csrfmiddlewaretoken: getCookie('csrftoken'),
+		passphrase         : get_passphrase()
 	}
 
 	$.post(
 		'/workspace/savekey/', 
-		{
-			id                 : key.id,
-			name               : key.name,
-			login              : key.login,
-			password           : key.password,
-			uri                : key.uri,
-			ipv4               : key.ipv4,
-			ipv6               : key.ipv6,
-			informations       : key.informations,
-			folder             : key.folder,
-			workspace_id       : $('#workspaces-select').val(),
-			csrfmiddlewaretoken: getCookie('csrftoken'),
-			passphrase         : get_passphrase()
-		}, 
+		key, 
 
 		function(response){
 			$('#btn-action-keyring').html(txt);
@@ -339,11 +332,11 @@ $('#modal-share-workspace').on('shown.bs.modal', function() {
 			url    : sSource, 
 			data   : aoData, 
 			success: function(data, callback){
-	            if (typeof(data) === 'string')
-	              window.location.href = window.location.href;
-	            else
-	              fnCallback(data)
-	        }
+					if (typeof(data) === 'string')
+						window.location.href = window.location.href;
+					else
+						fnCallback(data)
+			}
 	      })
 	    },
 
@@ -379,6 +372,8 @@ workspace_vue = new Vue({
 	data: {
 		search_workspace: "",
 		workspace_name  : "",
+		selected_workspace: null,
+		favorite_workspace: null,
 		folder_edit     : false,
 		folder          : false,
 		length_pass     : 8,
@@ -397,6 +392,7 @@ workspace_vue = new Vue({
 			ipv6        : "",
 			os          : "",
 			informations: "",
+			folder			: ""
 		},
 
 		folder: {
@@ -460,8 +456,6 @@ workspace_vue = new Vue({
 			if (!passphrase)
 				return;
 
-			var self = this;
-
 			var txt = $('#btn-import-file').html();
 			$('#btn-import-file').html('<i class="fa fa-spinner fa-spin"></i>');
 			$('#btn-import-file').prop('disabled', true);
@@ -514,7 +508,24 @@ workspace_vue = new Vue({
 			})
 		},
 
-		add_folder_root: function(){
+		select_favorite_workspace() {
+			let self = this
+
+			$.post(
+				'/users/favorite/',
+				{
+					csrfmiddlewaretoken: getCookie('csrftoken'),
+					workspace_id: this.selected_workspace
+				},
+
+				function(response) {
+					self.favorite_workspace = self.selected_workspace
+					notify("success", gettext('Success'), gettext("Workspace successfuly set as favorite"))
+				}
+			)
+		},
+		
+		add_folder_root() {
 			workspace_vue.folder_edit = false;
 			workspace_vue.folder = {
 				id    : "",
@@ -613,7 +624,7 @@ workspace_vue = new Vue({
 
 				function(response){
 					if (!response.status){
-						localStorage.clear();
+						// localStorage.clear();
 
 						setTimeout(function(){
 							self.get_tree($('#workspaces-select').val());
@@ -1154,7 +1165,7 @@ keys_table = $('#keys').DataTable({
     		if ($.inArray(aData.informations, ["", null, undefined]) > -1)
     			return;
 
-		    var sOut = '<b>Information:</b><br/><p>'+aData['informations']+"</p>";
+		    var sOut = '<b>Information:</b><br/><p>'+escape(aData['informations'])+"</p>";
     		table.fnOpen(nRow, sOut, 'details' );
 		    return sOut;
     	})
@@ -1202,8 +1213,10 @@ $('#workspaces-select').on('change', function(){
 	$('#tree').jstree("destroy").empty();
 
 	var workspace_id = $(this).val();
-	if (workspace_id !== null)
+	if (workspace_id !== null){
+		workspace_vue.selected_workspace = workspace_id
 		workspace_vue.get_tree(workspace_id);
+	}
 })
 $('#workspaces-select').trigger('change');
 

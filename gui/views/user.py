@@ -184,3 +184,23 @@ def unlock_user(request):
         'status': True,
         'success': _("User has been unlocked !")
     })
+
+
+def favorite(request):
+    try:
+        workspace_id = request.POST['workspace_id']
+
+        workspace = Workspace.objects.get(pk=workspace_id)
+        request.user.favorite_workspace = workspace
+        request.user.save()
+
+        return JsonResponse({
+            "status": True
+        })
+    
+    except Exception as err:
+        logger.error(err, exc_info=1)
+        return JsonResponse({
+            "status": False,
+            "error": str(err)
+        })

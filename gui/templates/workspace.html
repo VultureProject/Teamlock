@@ -24,6 +24,7 @@
 
         <div id="div-action-workspace">
           <div class="btn-group" id="btn-action-workspace">
+            <button type="button" v-on:click="select_favorite_workspace" v-if="favorite_workspace !== selected_workspace" class="btn btn-default btn-flat"><i class="fa fa-star"></i></button>
             <button type="button" v-on:click="add_folder_root" class="btn btn-default btn-flat"><i class="fa fa-folder">&nbsp;&nbsp;</i>{% trans "Add a folder" %}</button>
             <button type="button" id="dropdown-tool" class="btn btn-default btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
@@ -49,7 +50,7 @@
 {% block content %}
   <div class="tl-content-header-workspace">
     <div class="tl-content-header-search">
-      <form v-on:submit="search" action="#">
+      <form v-on:submit.prevent="search" action="#">
         <input type="text" v-model="search_workspace" class="form-control search_workspace" placeholder="&#xF002; Search"/>
       </form>
     </div>

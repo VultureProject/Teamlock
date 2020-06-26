@@ -1,5 +1,19 @@
 # Teamlock
 
+## Version 0.8
+--------------------------
+### Add
+- You can now define a workspace as favorite
+
+### Removed
+- Remove the recovery workflow
+
+### Fixed
+- Fix password edition after a search
+- Fix history date parsing
+- Fix Users list
+- Fix page reload when executing a first search
+
 ## Version 0.7
 --------------------------
 ### Added

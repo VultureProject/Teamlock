@@ -51,6 +51,7 @@ class TeamlockUser(AbstractBaseUser, PermissionsMixin):
     recovery_passphrase = models.TextField(null=True)
     configure = models.BooleanField(default=False)
     is_locked = models.BooleanField(default=False)
+    favorite_workspace = models.ForeignKey("Workspace", blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = UserManager()
 
@@ -68,7 +69,8 @@ class TeamlockUser(AbstractBaseUser, PermissionsMixin):
             'last_name': self.last_name,
             'configure': self.configure,
             'is_locked': self.is_locked,
-            'is_superuser': self.is_superuser
+            'is_superuser': self.is_superuser,
+            'favorite': self.favorite_workspace
         }
 
     def generate_keys(self, passphrase):

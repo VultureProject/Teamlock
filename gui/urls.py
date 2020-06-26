@@ -38,7 +38,7 @@ urlpatterns = [
     url(r'^$', auth_view.main, name='workspace'),
     url(r'^login/$', auth_view.log_in, name='log_in'),
     url(r'^logout/$', auth_view.log_out, name="log_out"),
-    url(r'^recover/', auth_view.recover_passphrase, name="recover_passphrase"),
+    # url(r'^recover/', auth_view.recover_passphrase, name="recover_passphrase"),
     url(r'^change/', auth_view.change_password, name="change_password"),
 
     url(r'^install/', install_view.install, name="install"),
@@ -47,6 +47,7 @@ urlpatterns = [
     url(r'^users/edit/$', user_view.edit_users, name="user_edit"),
     url(r'^users/save/', user_view.save_users, name="user_save"),
     url(r'^users/save/$', user_view.save_users),
+    url(r'^users/favorite/$', user_view.favorite),
 
     url(r'^users/workspace/', user_view.get_users_workspaces, name="get_users_workspaces"),
     url(r'^users/delete/$', user_view.delete_users, name="user_delete"),

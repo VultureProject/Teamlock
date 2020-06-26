@@ -54,7 +54,6 @@ def workspace(request):
         })
 
     workspaces = []
-
     for w in Workspace.objects.filter(owner=request.user):
         workspaces.append({
             'id': str(w.pk),
@@ -69,7 +68,8 @@ def workspace(request):
         })
 
     return JsonResponse({
-        'workspaces': workspaces
+        'workspaces': workspaces,
+        'favorite_workspace': request.user.favorite_workspace.pk
     })
 
 

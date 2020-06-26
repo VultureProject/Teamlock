@@ -216,82 +216,83 @@ def configure_account(request, user_id):
     })
 
 
-def recover_passphrase(request):
-    if request.method == "GET":
-        return render(request, "recover_passphrase.html")
+# def recover_passphrase(request):
+#     if request.method == "GET":
+#         return render(request, "recover_passphrase.html")
 
-    email = request.POST['email']
-    new_password = request.POST['new_password']
-    confirm_password = request.POST['confirm_password']
+#     email = request.POST['email']
+#     new_password = request.POST['new_password']
+#     confirm_password = request.POST['confirm_password']
 
-    if new_password != confirm_password:
-        return render(request, 'recover_passphrase.html', {
-            'error': _('Passwords mismatch')
-        })
+#     if new_password != confirm_password:
+#         return render(request, 'recover_passphrase.html', {
+#             'error': _('Passwords mismatch')
+#         })
 
-    try:
-        settings = SecuritySettings.objects.get()
-    except SecuritySettings.DoesNotExist:
-        settings = SecuritySettings(length_password=8)
+#     try:
+#         settings = SecuritySettings.objects.get()
+#     except SecuritySettings.DoesNotExist:
+#         settings = SecuritySettings(length_password=8)
 
-    if len(new_password) < settings.length_password:
-        error = "The password must be at least {} characters long.".format(
-            settings.length_password)
-        return render(request, 'recover_passphrase.html', {
-            'error': error
-        })
+#     if len(new_password) < settings.length_password:
+#         error = "The password must be at least {} characters long.".format(
+#             settings.length_password)
+#         return render(request, 'recover_passphrase.html', {
+#             'error': error
+#         })
 
-    # At least one letter and one non-letter
-    first_isalpha = new_password[0].isalpha()
-    if all(c.isalpha() == first_isalpha for c in new_password):
-        error = _("The password must contain at least one letter and at least \
-                     one digit or punctuation character.")
-        return render(request, 'recover_passphrase.html', {
-            'error': error
-        })
+#     # At least one letter and one non-letter
+#     first_isalpha = new_password[0].isalpha()
+#     if all(c.isalpha() == first_isalpha for c in new_password):
+#         error = _("The password must contain at least one letter and at least \
+#                      one digit or punctuation character.")
+#         return render(request, 'recover_passphrase.html', {
+#             'error': error
+#         })
 
-    try:
-        recovery_file = request.FILES['recovery_file'].read()
-        recovery_file = base64.b64decode(recovery_file).decode('utf-8')
-    except Exception:
-        return render(request, 'recover_passphrase.html', {
-            'error': _('Invalid recovery file provided')
-        })
+#     try:
+#         recovery_file = request.FILES['recovery_file'].read()
+#         recovery_file = base64.b64decode(recovery_file).decode('utf-8')
+#     except Exception:
+#         return render(request, 'recover_passphrase.html', {
+#             'error': _('Invalid recovery file provided')
+#         })
 
-    try:
-        user = get_user_model().objects.get(email=email)
-    except get_user_model().DoesNotExist:
-        return render(request, 'recover_passphrase.html', {
-            'error': _('No such user')
-        })
+#     try:
+#         user = get_user_model().objects.get(email=email)
+#     except get_user_model().DoesNotExist:
+#         return render(request, 'recover_passphrase.html', {
+#             'error': _('No such user')
+#         })
 
-    recovery_passphrase = user.recovery_passphrase
-    crypto_utils = CryptoUtils()
+#     recovery_passphrase = user.recovery_passphrase
+#     crypto_utils = CryptoUtils(user=user)
 
-    decrypted_recovery = crypto_utils.sym_decrypt(recovery_passphrase, recovery_file)
+#     decrypted_recovery = crypto_utils.sym_decrypt(recovery_passphrase, recovery_file)
 
-    workspaces = Workspace.objects.filter(owner=user)
-    shares = Shared.objects.filter(user=user)
+#     workspaces = Workspace.objects.filter(owner=user)
 
-    new_passphrase = hashlib.sha512(new_password.encode('utf-8')).hexdigest()
+#     shares = Shared.objects.filter(user=user)
 
-    try:
-        update_password_toolkit(
-            user,
-            workspaces,
-            shares,
-            decrypted_recovery,
-            new_passphrase,
-            new_password
-        )
-    except Exception as e:
-        return render(request, 'recover_passphrase.html', {
-            'error': str(e)
-        })
+#     new_passphrase = hashlib.sha512(new_password.encode('utf-8')).hexdigest()
 
-    return render(request, 'logon.html', {
-        'message': _("Password successfully updated")
-    })
+#     try:
+#         update_password_toolkit(
+#             user,
+#             workspaces,
+#             shares,
+#             decrypted_recovery,
+#             new_passphrase,
+#             new_password
+#         )
+#     except Exception as e:
+#         return render(request, 'recover_passphrase.html', {
+#             'error': str(e)
+#         })
+
+#     return render(request, 'logon.html', {
+#         'message': _("Password successfully updated")
+#     })
 
 
 @login_required

@@ -544,7 +544,9 @@ class WorkspaceUtils(CryptoUtils):
 
         mapping_right = {
             1: 'Read',
-            2: "Read & Write"
+            2: "Read & Write",
+            "1": "Read",
+            "2": "Read & Write"
         }
 
         if history:
