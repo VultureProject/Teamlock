@@ -2,7 +2,7 @@
 
 ## Version 0.8
 --------------------------
-### Add
+### Added
 - You can now define a workspace as favorite
 
 ### Removed
