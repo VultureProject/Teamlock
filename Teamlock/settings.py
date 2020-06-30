@@ -66,7 +66,7 @@ DEBUG = False
 LOG_LEVEL = "INFO"
 DEV_MODE = False
 
-VERSION = 0.7
+VERSION = 0.8
 
 ALLOWED_HOSTS = ["*"]
 
