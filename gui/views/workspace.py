@@ -67,9 +67,14 @@ def workspace(request):
             'shared': True
         })
 
+    try:
+        favorite_workspace = request.user.favorite_workspace.pk
+    except AttributeError:
+        favorite_workspace = None
+
     return JsonResponse({
         'workspaces': workspaces,
-        'favorite_workspace': request.user.favorite_workspace.pk
+        'favorite_workspace': favorite_workspace
     })
 
 

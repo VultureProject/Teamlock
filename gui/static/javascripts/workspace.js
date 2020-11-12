@@ -45,7 +45,9 @@ function get_workspaces(){
 			data: response.workspaces
 		});
 
-		$('#workspaces-select').val(workspace_vue.favorite_workspace)
+		if (workspace_vue.favorite_workspace) {
+			$('#workspaces-select').val(workspace_vue.favorite_workspace)
+		}
 
 		$('#workspaces-select').trigger('change');
 	})
