@@ -35,6 +35,7 @@ from django.http import JsonResponse
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 from teamlock_toolkit.crypto_utils import CryptoUtils
 
 logging.config.dictConfig(settings.LOG_SETTINGS)
@@ -42,10 +43,11 @@ logger = logging.getLogger('auth')
 
 
 @csrf_exempt
+@api_view(["POST"])
 def api_auth(request):
     try:
-        email = request.POST['email']
-        password = request.POST['password']
+        email = request.data['email']
+        password = request.data['password']
     except KeyError:
         return JsonResponse({
             'status': False,

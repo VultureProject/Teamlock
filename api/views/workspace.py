@@ -50,9 +50,15 @@ def get_workspaces(request):
             'name': tmp.workspace.name
         })
 
+    try:
+        favorite_workspace = request.user.favorite_workspace.pk
+    except AttributeError:
+        favorite_workspace = None
+
     return JsonResponse({
         'status': True,
-        'workspaces': workspaces
+        'workspaces': workspaces,
+        'favorite_workspace': favorite_workspace
     })
 
 
