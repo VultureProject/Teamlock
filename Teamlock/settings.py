@@ -61,12 +61,14 @@ except ImportError:
 
     from Teamlock.secret_key import SECRET_KEY
 
+from corsheaders.defaults import default_headers
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 LOG_LEVEL = "INFO"
 DEV_MODE = False
 
-VERSION = 0.8
+VERSION = 0.9
 
 ALLOWED_HOSTS = ["*"]
 
@@ -83,8 +85,16 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django_crontab',
     'django_user_agents',
+    'rest_framework',
+    'corsheaders',
     'api',
     'gui'
+]
+
+CORS_ORIGIN_ALLOW_ALL = True 
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "Authorization",
+    "Passphrase"
 ]
 
 # WIP
@@ -97,6 +107,7 @@ CRONJOBS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

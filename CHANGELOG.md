@@ -1,5 +1,9 @@
 # Teamlock
 
+## Version 0.9
+--------------------------
+- No modal to add/edit a key
+
 ## Version 0.8
 --------------------------
 ### Added

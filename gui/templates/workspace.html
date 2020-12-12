@@ -131,109 +131,105 @@
     </div> -->
   </div>
 
-  <div class="modal fade" tabindex="-1" id="modal-add-key" role="dialog">
-    <div class="modal-dialog" role="document" style="width:60%;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title"><i class="fa fa-key">&nbsp;</i>{% trans "Add a key" %}</h4>
+  <div class="tl-content-detail">
+    <div class="box" id="box-details" v-if="current_folder">
+      <form v-on:submit.prevent="save_form_key">
+        <div class="box-header">
+          <i :class="render_icon(current_folder.icon)">&nbsp;</i><b>${ current_folder.text }</b>
+          <div class="box-tools pull-right">
+            ${nb_keys} {% trans "entries" %}
+          </div>
         </div>
-        <form action="#" id="form-save-key">
-          <div class="modal-body" id="edit-key">
 
-            <input type="hidden" v-model="key.folder"/>
-            <input type="hidden" v-model="key.id"/>
-            <div class="row">
-              <div class="col-md-6">
-                <label for="id_name">{% trans "Name" %}</label>
-                <input type="text" class="form-control" id="id_name" v-model="key.name"/>
-                <p class="error_form" id="id_error_name"></p>
-              </div>
+        <div class="box-content">
+          <div v-if="load_detail" id="load-detail-div">
+            <i id="spinner-detail" class="fa fa-spinner fa-spin fa-2x" v-if="load_detail"></i>
+          </div>
+          <div class="form-group">
+            <label>{% trans 'Name' %}</label>
+            <input type="text" class="form-control" id="id_name" v-model="key.name"/>
+            <p class="error_form" id="id_error_name"></p>
+          </div>
 
-              <div class="col-md-6">
-                <label for="id_uri">{% trans "URI" %}</label>
-                <input type="text" class="form-control" id="id_uri" v-model="key.uri"/>
-                <p class="error_form" id="id_error_uri"></p>
+          <div class="form-group">
+            <label>{% trans 'Login' %}</label>
+            <input type="text" class="form-control" id="id_login" v-model="key.login"/>
+            <p class="error_form" id="id_error_login"></p>
+          </div>
+
+          <div class="form-group">
+            <label>{% trans 'Password' %}</label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="id_password" v-model="key.password"/>
+              <!-- /btn-group -->
+              <div class="input-group-btn">
+                <button type="button" v-on:click="showpass" class="btn btn-default btn-flat btn-action-keyring"><i class="fa fa-eye"></i></button>
               </div>
             </div>
+            <p class="error_form" id="id_error_password"></p>
+          </div>
 
-            <div class="row">
-              <div class="col-md-6">
-                <label for="id_ipv4">{% trans "IPv4" %}</label>
-                <input type="text" class="form-control" id="id_ipv4" v-model="key.ipv4"/>
-                <p class="error_form" id="id_error_ipv4"></p>
-              </div>  
-              <div class="col-md-6">
-                <label for="id_ipv6">{% trans "IPv6" %}</label>
-                <input type="text" class="form-control" id="id_ipv6" v-model="key.ipv6"/>
-                <p class="error_form" id="id_error_ipv6"></p>
-              </div>  
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <label for="id_login">{% trans "Login" %}</label>
-                <input type="text" class="form-control" id="id_login" v-model="key.login"/>
-                <p class="error_form" id="id_error_login"></p>
-              </div>
-
-              <div class="col-md-6">
+          <div class="form-group">
+            <button type="button" class="btn bg-navy btn-block dropdown-toggle" data-toggle="dropdown"><i class="fa fa-magic"></i>&nbsp;{% trans "Generate" %}</button>
+            <ul class="dropdown-menu" id="dropdown-generator-password" role="menu">
+              <li><h4>{% trans "Password generator" %}</h4></li>
+              <li class="gen_pass">
                 <div class="form-group">
-                  <label for="id_password">{% trans "Password" %}</label>
-
-                  <div class="input-group">
-                    <input type="password" class="form-control" id="id_password" v-model="key.password"/>
-                    <!-- /btn-group -->
-                    <div class="input-group-btn">
-                      <button type="button" v-on:click="showpass" class="btn btn-default btn-flat btn-action-keyring"><i class="fa fa-eye"></i></button>
-                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-magic"></i></button>
-                      <ul class="dropdown-menu" id="dropdown-generator-password" role="menu">
-                        <li><h4>{% trans "Password generator" %}</h4></li>
-                        <li class="gen_pass">
-                          <div class="form-group">
-                            <label>{% trans "Length" %}</label>
-                            <input type="number" class="form-control" v-model="length_pass" placeholder="Lenght"/>
-                          </div>
-                        </li>
-                        <li class="gen_pass">
-                          <div class="checkbox">
-                            <label><input type="checkbox" v-model="number_pass"/>{% trans "Numbers" %}</label>
-                          </div>
-                        </li>
-                        <li class="gen_pass">
-                          <div class="checkbox">
-                            <label><input type="checkbox" v-model="uppercase_pass"/>{% trans "Uppercase" %}</label>
-                          </div>
-                        </li>
-                        <li class="gen_pass">
-                          <div class="checkbox">
-                            <label><input type="checkbox" v-model="symbols_pass"/>{% trans "Symbols" %}</label>
-                          </div>
-                        </li>
-                        <li><button type="button" class="btn bg-navy btn-flat btn-block" v-on:click="generatepass">{% trans "Generate" %}</button></li>
-                      </ul>
-                    </div>
-                  </div>
-                  <p class="error_form" id="id_error_password"></p>
+                  <label>{% trans "Length" %}</label>
+                  <input type="number" class="form-control" v-model="length_pass" placeholder="Lenght"/>
                 </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-12">
-                <label for="id_informations">{% trans "Informations" %}</label>
-                <textarea id="id_informations" name="informations" v-model="key.informations" class="form-control textarea"></textarea>
-                <p class="error_form" id="id_error_informations"></p>
-              </div>
-            </div>
-
+              </li>
+              <li class="gen_pass">
+                <div class="checkbox">
+                  <label><input type="checkbox" v-model="number_pass"/>{% trans "Numbers" %}</label>
+                </div>
+              </li>
+              <li class="gen_pass">
+                <div class="checkbox">
+                  <label><input type="checkbox" v-model="uppercase_pass"/>{% trans "Uppercase" %}</label>
+                </div>
+              </li>
+              <li class="gen_pass">
+                <div class="checkbox">
+                  <label><input type="checkbox" v-model="symbols_pass"/>{% trans "Symbols" %}</label>
+                </div>
+              </li>
+              <li><button type="button" class="btn bg-navy btn-flat btn-block" v-on:click="generatepass"><i class="fa fa-check"></i>&nbsp;{% trans "Generate" %}</button></li>
+            </ul>
           </div>
-          <div class="modal-footer">
-            <button type="submit" id="btn-action-keyring" class="btn-action-keyring btn btn-flat btn-primary" data-action="savekey">{% trans "Save changes" %}</button>
-            <button type="button" class="btn btn-flat bg-navy" data-dismiss="modal">{% trans "Cancel" %}</button >
+
+          <div class="form-group">
+            <label>{% trans 'URI' %}</label>
+            <input type="text" class="form-control" id="id_uri" v-model="key.uri"/>
+            <p class="error_form" id="id_error_uri"></p>
           </div>
-        </form>
-      </div>
+
+          <div class="form-group">
+            <label>{% trans 'IPV4' %}</label>
+            <input type="text" class="form-control" id="id_ipv4" v-model="key.ipv4"/>
+            <p class="error_form" id="id_error_ipv4"></p>
+          </div>
+
+          <div class="form-group">
+            <label>{% trans 'IPV6' %}</label>
+            <input type="text" class="form-control" id="id_ipv6" v-model="key.ipv6"/>
+            <p class="error_form" id="id_error_ipv6"></p>
+          </div>
+
+          <div class="form-group">
+            <label>{% trans 'Informations' %}</label>
+            <textarea id="id_informations" class="form-control textarea" v-model="key.informations"></textarea>
+            <p class="error_form" id="id_error_informations"></p>
+          </div>
+        </div>
+
+        <div class="box-footer">
+          <button type="submit" id="btn-action-keyring" class="btn-action-keyring btn btn-block btn-flat btn-primary" data-action="savekey">
+            <span v-if="key.id"><i class="fa fa-edit">&nbsp;&nbsp;</i>{% trans "Save changes" %}</span>
+            <span v-else><i class="fa fa-plus">&nbsp;&nbsp;</i>{% trans "Create" %}</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

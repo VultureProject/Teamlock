@@ -75,73 +75,8 @@ $('#btn-add-key').on('click', function(){
 		informations: "",
 		folder      : node[0],
 	}
-	$('#modal-add-key').modal('show');	
-})
-
-$('#form-save-key').unbind('submit');
-$('#form-save-key').on('submit', function(e){
-	e.preventDefault();
-
-	var txt = $('#btn-action-keyring').html();
-	$('#btn-action-keyring').html('<i class="fa fa-spinner fa-spin"></i>');
-	$('#btn-action-keyring').prop('disabled', true);
-
-	var key = {
-		id          : workspace_vue.key.id,
-		name        : workspace_vue.key.name,
-		login       : workspace_vue.key.login,
-		password    : workspace_vue.key.password,
-		uri         : workspace_vue.key.uri,
-		ipv4        : workspace_vue.key.ipv4,
-		ipv6        : workspace_vue.key.ipv6,
-		informations: workspace_vue.key.informations,
-		folder      : workspace_vue.key.folder,
-		workspace_id       : $('#workspaces-select').val(),
-		csrfmiddlewaretoken: getCookie('csrftoken'),
-		passphrase         : get_passphrase()
-	}
-
-	$.post(
-		'/workspace/savekey/', 
-		key, 
-
-		function(response){
-			$('#btn-action-keyring').html(txt);
-			$('#btn-action-keyring').prop('disabled', false);
-
-			if (response.status){
-				notify('success', gettext('Success'), gettext('Key saved !'))
-				var keys_table = $('#keys').dataTable();
-
-				if (key.id !== ""){
-					// Remove key from datatable and array
-					var nodes = keys_table.fnGetNodes();
-					for (var i in nodes){
-						var d = keys_table.fnGetData(nodes[i]);
-						if (d.id === key.id){
-							var pos = keys_table.fnGetPosition(nodes[i]);
-							keys_table.fnDeleteRow(pos);
-							break;
-						}
-					}
-
-					for (var i in keys){
-						if (keys[i].id == key.id){
-							keys.splice(i, 1);
-							break;
-						}
-					}
-				} else {
-					// keys.push(key);
-				}
-
-				keys_table.fnAddData(response.data);
-				$('#modal-add-key').modal('hide');
-			} else {
-				notify('error', gettext('Error'), response.error);
-			}
-		}
-	)
+	$('#modal-add-key').modal('show');
+	$('#keys tbody tr').removeClass('selected')
 })
 
 $('#form-save-folder').unbind('submit');
@@ -378,11 +313,14 @@ workspace_vue = new Vue({
 		favorite_workspace: null,
 		folder_edit     : false,
 		folder          : false,
-		length_pass     : 8,
+		length_pass     : 12,
 		number_pass     : true,
+		load_detail		: false,
 		uppercase_pass  : true,
 		symbols_pass    : true,
 		rights          : 2,
+		nb_keys			: 0,
+		current_folder	: false,
 
 		key: {
 			id          : "",
@@ -406,10 +344,81 @@ workspace_vue = new Vue({
 	},
 
 	mounted: function(){
-		get_workspaces();
+		get_workspaces();	 
 	},
 
 	methods: {
+
+		save_form_key() {
+			let self = this
+			self.load_detail = true
+			$('#btn-action-keyring').prop('disabled', true);
+
+			var key = {
+				id: self.key.id,
+				name: self.key.name,
+				login: self.key.login,
+				password: self.key.password,
+				uri: self.key.uri,
+				ipv4: self.key.ipv4,
+				ipv6: self.key.ipv6,
+				informations: self.key.informations,
+				folder: self.key.folder,
+				workspace_id: $('#workspaces-select').val(),
+				csrfmiddlewaretoken: getCookie('csrftoken'),
+				passphrase: get_passphrase()
+			}
+
+			$.post(
+				'/workspace/savekey/', 
+				key, 
+
+				function(response){
+					self.load_detail = false
+					$('#btn-action-keyring').prop('disabled', false);
+
+					if (response.status){
+						notify('success', gettext('Success'), gettext('Key saved !'))
+						var keys_table = $('#keys').dataTable();
+
+						if (key.id !== ""){
+							// Remove key from datatable and array
+							var nodes = keys_table.fnGetNodes();
+							for (var i in nodes){
+								var d = keys_table.fnGetData(nodes[i]);
+								if (d.id === key.id){
+									var pos = keys_table.fnGetPosition(nodes[i]);
+									keys_table.fnDeleteRow(pos);
+									break;
+								}
+							}
+
+							for (var i in keys){
+								if (keys[i].id == key.id){
+									keys.splice(i, 1);
+									break;
+								}
+							}
+						}
+
+						keys_table.fnAddData(response.data);
+
+						var nodes = keys_table.fnGetNodes();
+						for (var i in nodes){
+							var d = keys_table.fnGetData(nodes[i])
+							if (d.id === response.data.id){
+								$(nodes[i]).click()
+								break
+							}
+						}
+						$('#modal-add-key').modal('hide');
+					} else {
+						notify('error', gettext('Error'), response.error);
+					}
+				}
+			)
+		},
+
 		search(){
 			let s = this.search_workspace;
 
@@ -418,6 +427,19 @@ workspace_vue = new Vue({
 				this.get_keys(node[0]);
 				return;
 			}
+
+			this.key = {
+				id          : "",
+				name        : "",
+				login       : "",
+				password    : "",
+				uri         : "",
+				ipv4        : "",
+				ipv6        : "",
+				os          : "",
+				informations: "",
+				folder			: ""
+			},
 
 			$.post('/workspace/search/', {
 				csrfmiddlewaretoken: getCookie('csrftoken'),
@@ -433,8 +455,14 @@ workspace_vue = new Vue({
 				$("#keys").dataTable().fnClearTable();
 				if (response.founded_keys.length){
 					var keys = response.founded_keys;
+					self.nb_keys = keys.length
 					for (var key of keys)
 						$("#keys").dataTable().fnAddData(key);
+
+					let keys_table = $("#keys").dataTable()
+					var nodes = keys_table.fnGetNodes();
+					if (nodes.length > 0)
+						$(nodes[0]).click()
 				}
 			})
 		},
@@ -498,6 +526,7 @@ workspace_vue = new Vue({
 			e.stopPropagation();
 			var self = this;
 
+			$('#dropdown-generator-password').dropdown('toggle');
 			$.post('/generatepass/', {
 				csrfmiddlewaretoken: getCookie('csrftoken'),
 				length             : self.length_pass,
@@ -544,31 +573,9 @@ workspace_vue = new Vue({
 			$('#modal-add-folder').modal('show');
 		},
 
-		// backup_workspace: function(){
-		// 	$.post(
-		// 		'/workspace/backup/',
-		// 		{
-		// 			csrfmiddlewaretoken: getCookie('csrftoken'),
-		// 			workspace_id: $('#workspaces-select').val(),
-		// 			passphrase: get_passphrase()
-		// 		},
-
-		// 		function(response){
-		// 			if (!response.status){
-		// 				notify('error', gettext('Error'), response.error);
-		// 				return;
-		// 			}
-
-		// 			var filename = "backup_workspace_" + $('#workspaces-select').val() + ".json"
-		// 			var blob = new Blob([response.backup], {type: "application/json;charset=utf-8"});
-		// 			saveAs(blob, filename);
-		// 		}
-		// 	)
-		// },
-
 		delete_workspace: function(){
 
-			var notice = new PNotify({
+			new PNotify({
 				title: gettext('Confirmation'),
 				text: gettext('All keys will be lost !'),
 				icon: 'fa fa-trash',
@@ -813,7 +820,7 @@ workspace_vue = new Vue({
 						workspace_id: $('#workspaces-select').val(),
 						folder_from: elem.data.folder_from,
 						folder_to: folder_to,
-						key_id: elem.data.key_id
+						key_id: key_id
 					}, function(response){
 						if (!response.status){
 							notify('error', gettext('Error'), response.error)
@@ -834,6 +841,8 @@ workspace_vue = new Vue({
 				$('#btn-add-key').show();
 				self.get_keys(node.id);
 				self.folder = node.id;
+
+				self.current_folder = node
 			})
 
 			$("#tree").on('open_node.jstree', function (event, data) {
@@ -844,6 +853,10 @@ workspace_vue = new Vue({
 				if (data.instance.get_icon(data.node) === "fa fa-folder-open-o")	
 				    data.instance.set_icon(data.node,'fa fa-folder-o');
 			});
+		},
+
+		render_icon(icon) {
+			return `fa ${icon}`
 		},
 
 		form_save_workspace: function(){
@@ -886,9 +899,23 @@ workspace_vue = new Vue({
 		},
 
 		get_keys: function(folder_id){
+			let self = this
 			var passphrase = get_passphrase();
 			if (!passphrase)
 				return;
+
+			self.key = {
+				id          : "",
+				name        : "",
+				login       : "",
+				password    : "",
+				uri         : "",
+				ipv4        : "",
+				ipv6        : "",
+				os          : "",
+				informations: "",
+				folder			: ""
+			},
 
 			$.post(
 				'/workspace/keys/', {
@@ -902,8 +929,13 @@ workspace_vue = new Vue({
 					$("#keys").dataTable().fnClearTable();
 					if (response.keys.length){
 						var keys = response.keys;
+						self.nb_keys = keys.length
 						for (var key of keys)
 							$("#keys").dataTable().fnAddData(key);
+
+						let keys_table = $("#keys").dataTable()
+						var nodes = keys_table.fnGetNodes();
+						$(nodes[0]).click()
 					}
 				}
 			)
@@ -944,7 +976,7 @@ keys_table = $('#keys').DataTable({
       	if (workspace_vue.rights < 2)
       		return "";
 
-  		return "<button href='#' class='btn btn-xs btn-flat btn-primary btn-edit'><i class='fa fa-edit'></i></button>&nbsp;&nbsp;<button href='#' data-id='" + row.id + "' class='btn btn-xs btn-flat bg-navy btn-delete'><i class='fa fa-trash'></i></button>"
+  		return "<button href='#' data-id='" + row.id + "' class='btn btn-xs btn-flat bg-navy btn-delete'><i class='fa fa-trash'></i></button>"
       }},
       {mData: "folder", name: "folder", defaultContent: "", bVisible: false, aTargets: [8], sClass: "center", bSortable: false, 'sWidth': "1%"},
     ],
@@ -1033,57 +1065,57 @@ keys_table = $('#keys').DataTable({
     		)			
     	})
 
-    	$(nRow).find(".btn-edit").click(function(e){
-    		e.preventDefault();
-    		e.stopPropagation();
+    	// $(nRow).find(".btn-edit").click(function(e){
+    	// 	e.preventDefault();
+    	// 	e.stopPropagation();
 
-    		if (workspace_vue.rights < 2)
-	      		return "";
+    	// 	if (workspace_vue.rights < 2)
+	    //   		return "";
 
-    		if (!get_passphrase())
-				return;
+    	// 	if (!get_passphrase())
+		// 		return;
 
-			var span = this;
-    		var text = $(span).html();
-    		$(span).html('<i class="fa fa-spinner fa-spin"></i>');
+		// 	var span = this;
+    	// 	var text = $(span).html();
+    	// 	$(span).html('<i class="fa fa-spinner fa-spin"></i>');
 
-			var data = {
-				key_id             : aData.id,
-				folder_id          : aData.folder,
-				passphrase         : get_passphrase(),
-				workspace_id       : $('#workspaces-select').val(),
-				csrfmiddlewaretoken: getCookie('csrftoken'),
-			}
+		// 	var data = {
+		// 		key_id             : aData.id,
+		// 		folder_id          : aData.folder,
+		// 		passphrase         : get_passphrase(),
+		// 		workspace_id       : $('#workspaces-select').val(),
+		// 		csrfmiddlewaretoken: getCookie('csrftoken'),
+		// 	}
 
-    		$.post(
-    			'/workspace/getpasswd',
-    			data,
+    	// 	$.post(
+    	// 		'/workspace/getpasswd',
+    	// 		data,
 
-    			function(response){
-    				$(span).html(text);
-    				if (!response.status){
-    					notify('error', gettext("Error"), response.error);
-    					return;
-    				}
+    	// 		function(response){
+    	// 			$(span).html(text);
+    	// 			if (!response.status){
+    	// 				notify('error', gettext("Error"), response.error);
+    	// 				return;
+    	// 			}
 
-					workspace_vue.key = {
-						id          : aData.id,
-						name        : aData.name,
-						login       : aData.login,
-						password    : response.data,
-						uri         : aData.uri,
-						ipv4        : aData.ipv4,
-						ipv6        : aData.ipv6,
-						os          : aData.os,
-						informations: aData.informations,
-						folder      : aData.folder,
-					}
+		// 			workspace_vue.key = {
+		// 				id          : aData.id,
+		// 				name        : aData.name,
+		// 				login       : aData.login,
+		// 				password    : response.data,
+		// 				uri         : aData.uri,
+		// 				ipv4        : aData.ipv4,
+		// 				ipv6        : aData.ipv6,
+		// 				os          : aData.os,
+		// 				informations: aData.informations,
+		// 				folder      : aData.folder,
+		// 			}
 
-					$('#os').val(aData.os).trigger('change');
-					$('#modal-add-key').modal('show');
-    			}
-    		)			
-    	})
+		// 			$('#os').val(aData.os).trigger('change');
+		// 			$('#modal-add-key').modal('show');
+    	// 		}
+    	// 	)			
+    	// })
 
     	$(nRow).find('.btn-delete').click(function(e){
 			var self = this;
@@ -1153,23 +1185,62 @@ keys_table = $('#keys').DataTable({
     	})
 
     	$(nRow).click(function(){
-    		var table = $('#keys').dataTable();
-    		var nodes = table.fnGetNodes();
+			$('#keys tbody tr').removeClass('selected')
+			$(nRow).addClass('selected')
 
-    		if (table.fnIsOpen(nRow)){
-    			table.fnClose(nRow);
-    			return false;
-    		}
+			if (!get_passphrase())
+				return;
+	
+			workspace_vue.load_detail = true;
 
-    		for (var node of nodes)
-    			table.fnClose(node);
+			workspace_vue.key = {
+				id          : "",
+				name        : "",
+				login       : "",
+				password    : "",
+				uri         : "",
+				ipv4        : "",
+				ipv6        : "",
+				os          : "",
+				informations: "",
+				folder      : "",
+			}
 
-    		if ($.inArray(aData.informations, ["", null, undefined]) > -1)
-    			return;
+			var data = {
+				key_id             : aData.id,
+				folder_id          : aData.folder,
+				passphrase         : get_passphrase(),
+				workspace_id       : $('#workspaces-select').val(),
+				csrfmiddlewaretoken: getCookie('csrftoken'),
+			}
 
-		    var sOut = '<b>Information:</b><br/><p>'+escape(aData['informations'])+"</p>";
-    		table.fnOpen(nRow, sOut, 'details' );
-		    return sOut;
+    		$.post(
+    			'/workspace/getpasswd',
+    			data,
+
+    			function(response){
+					workspace_vue.load_detail = false
+    				if (!response.status){
+    					notify('error', gettext("Error"), response.error);
+    					return;
+    				}
+
+					workspace_vue.key = {
+						id          : aData.id,
+						name        : aData.name,
+						login       : aData.login,
+						password    : response.data,
+						uri         : aData.uri,
+						ipv4        : aData.ipv4,
+						ipv6        : aData.ipv6,
+						os          : aData.os,
+						informations: aData.informations,
+						folder      : aData.folder,
+					}
+
+					$('#os').val(aData.os).trigger('change');
+    			}
+    		)
     	})
 
     	$(nRow).draggable({
@@ -1198,7 +1269,7 @@ keys_table = $('#keys').DataTable({
 				}, item);
     		}
     	})
-    }
+	}
 })
 
 $('#import-keepass-form').on('submit', function(e){

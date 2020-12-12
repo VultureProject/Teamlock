@@ -51,10 +51,10 @@ $(function(){
         destroy: true,
         processing: true,
         serverSide: true,
-        iDisplayLength: 50,
+        iDisplayLength: 20,
         orderMulti: true,
         order: [[0, 'asc']],
-        dom: '<"top">rt<"bottom"p><"clear">',
+        dom: '<"top"p>rt<"bottom"><"clear">',
         columnDefs: columns,
 
         ajax: {
