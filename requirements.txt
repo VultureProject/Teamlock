@@ -8,4 +8,5 @@ django-extensions
 django-user-agents
 pycryptodome==3.9.9
 psycopg2-binary
+pycrypto
 requests
